@@ -110,3 +110,24 @@ export const getLesson = cache(async (id: number) => {
   
     return { ...data, challenges: normalizedChallenges };
 });
+
+export const getTopTenUsers = cache(async () => {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return [];
+  }
+
+  const data = await db.query.userProgress.findMany({
+    orderBy: (userProgress, { desc }) => [desc(userProgress.xp)],
+    limit: 10,
+    columns: {
+      userId: true,
+      userName: true,
+      userImage: true,
+      xp: true,
+    },
+  });
+
+  return data;
+});

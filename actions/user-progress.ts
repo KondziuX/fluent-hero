@@ -19,16 +19,24 @@ export const upsertUserProgress = async (courseId: number) => {
   // Sprawdzamy, czy user już ma postęp
   const existingUserProgress = await getUserProgress();
 
+  // Pobieramy dane z Clerk
+  const userName = user.firstName || "User"; 
+  const userImage = user.imageUrl || "/mascot.svg";
+
   // Jeśli tak - aktualizujemy aktywny kurs
   if (existingUserProgress) {
     await db.update(userProgress).set({
       activeCourseId: courseId,
+      userName,
+      userImage,
     }).where(eq(userProgress.userId, userId));
   } else {
     // Jeśli nie - tworzymy nowy wpis
     await db.insert(userProgress).values({
       userId,
       activeCourseId: courseId,
+      userName,
+      userImage,
       hearts: 5,
       xp: 0,
     });
