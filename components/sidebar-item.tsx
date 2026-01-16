@@ -20,21 +20,23 @@ export const SidebarItem = ({
   const active = pathname === href;
 
   return (
-    <Button
+<Button
       variant={active ? "sidebarOutline" : "sidebar"}
       className="justify-start h-[52px]"
       asChild
     >
       <Link href={href}>
-        {/* Tymczasowo, jeśli nie masz ikonek, wyświetlimy sam tekst lub placeholder */}
-        {/* <Image src={iconSrc} alt={label} className="mr-5" height={32} width={32} /> */}
-        <span className="mr-5 text-xl">
-            {/* Prosty hack: mapowanie nazwy na emoji dla MVP */}
-            {label === "Nauka" && "🏠"}
-            {label === "Ranking" && "🏆"}
-            {label === "Zadania" && "🎯"}
-            {label === "Sklep" && "🛍️"}
-        </span>
+        {/* Odkomentowane: */}
+        <Image 
+            src={iconSrc} 
+            alt={label} 
+            className="mr-5" 
+            height={32} 
+            width={32} 
+        />
+        
+        {/* Zakomentowane emoji: */}
+        {/* <span className="mr-5 text-xl">...</span> */}
         
         {label}
       </Link>
