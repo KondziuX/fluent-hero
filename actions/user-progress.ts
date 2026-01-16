@@ -2,6 +2,7 @@
 
 import db from '@/db';
 import { userProgress } from '@/db/schema';
+import { getUserProgress } from '@/db/queries'; // <--- TO BYŁ BRAKUJĄCY ELEMENT!
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -16,18 +17,13 @@ export const upsertUserProgress = async (courseId: number) => {
   }
 
   // Sprawdzamy, czy user już ma postęp
-  const existingUserProgress = await db.query.userProgress.findFirst({
-    where: (progress, { eq }) => eq(progress.userId, userId),
-  });
+  const existingUserProgress = await getUserProgress();
 
   // Jeśli tak - aktualizujemy aktywny kurs
   if (existingUserProgress) {
     await db.update(userProgress).set({
       activeCourseId: courseId,
-    }).where(
-      // @ts-ignore: Drizzle czasem marudzi przy where na userId, ale to działa
-      (progress) => (progress.userId, userId)
-    );
+    }).where(eq(userProgress.userId, userId));
   } else {
     // Jeśli nie - tworzymy nowy wpis
     await db.insert(userProgress).values({
@@ -50,15 +46,13 @@ export const reduceHearts = async (challengeId: number) => {
     throw new Error("Unauthorized");
   }
 
-  const currentUserProgress = await db.query.userProgress.findFirst({
-    where: eq(userProgress.userId, userId),
-  });
+  const currentUserProgress = await getUserProgress();
 
   if (!currentUserProgress) {
     throw new Error("User progress not found");
   }
 
-  // Jeśli user ma 0 serc, nic nie robimy (lub kończymy lekcję - logika na przyszłość)
+  // Jeśli user ma 0 serc, nic nie robimy
   if (currentUserProgress.hearts === 0) {
     return { error: "hearts" };
   }
@@ -68,6 +62,33 @@ export const reduceHearts = async (challengeId: number) => {
     hearts: Math.max(currentUserProgress.hearts - 1, 0),
   }).where(eq(userProgress.userId, userId));
 
+  revalidatePath("/learn");
+  revalidatePath("/lesson");
+  revalidatePath("/quests");
+  revalidatePath("/leaderboard");
+};
+
+export const refillHearts = async () => {
+  const currentUserProgress = await getUserProgress();
+
+  if (!currentUserProgress) {
+    throw new Error("User progress not found");
+  }
+
+  if (currentUserProgress.hearts === 5) {
+    throw new Error("Hearts are already full");
+  }
+
+  if (currentUserProgress.xp < 50) {
+    throw new Error("Not enough points");
+  }
+
+  await db.update(userProgress).set({
+    hearts: 5, // Odnawiamy na max
+    xp: currentUserProgress.xp - 50, // Pobieramy opłatę
+  }).where(eq(userProgress.userId, currentUserProgress.userId));
+
+  revalidatePath("/shop");
   revalidatePath("/learn");
   revalidatePath("/lesson");
 };
