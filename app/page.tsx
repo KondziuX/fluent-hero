@@ -1,44 +1,52 @@
 import { Button } from '@/components/ui/button';
-import { getCourses } from '@/db/queries';
 import { SignInButton } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 
 export default async function Home() {
-  // 1. Sprawdzamy, czy użytkownik jest zalogowany
   const { userId } = await auth();
 
-  // 2. Jeśli tak -> natychmiastowy "kop" do aplikacji właściwej
   if (userId) {
     redirect('/learn');
   }
 
-  // 3. Jeśli nie -> pobieramy dane dla strony startowej (Landing Page)
-  const coursesData = await getCourses();
-
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 gap-8">
-      <h1 className="text-4xl font-bold">Fluent-Hero MVP</h1>
-      
-      <div className="border p-4 rounded-lg bg-slate-100 max-w-md w-full">
-        <h2 className="text-xl font-bold mb-4">Dostępne kursy:</h2>
-        <ul className="list-disc pl-5 space-y-2">
-          {coursesData.map((course) => (
-            <li key={course.id} className="text-lg">
-              <strong>{course.title}</strong> ({course.baseLanguage} → {course.targetLanguage})
-            </li>
-          ))}
-        </ul>
-      </div>
+    <main className="relative min-h-screen flex flex-col items-center justify-center bg-slate-950 text-slate-50 overflow-hidden selection:bg-indigo-500/30">
+      {/* Background Gradients/Effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900/50 via-slate-950 to-slate-950 pointer-events-none" />
 
-      <div className="flex gap-4">
-        {/* Skoro jesteśmy tutaj, to na pewno userId == null, więc nie potrzebujemy <SignedOut> */}
+      <div className="z-10 flex flex-col items-center text-center max-w-3xl px-6 animate-fade-in-up">
+        {/* Badge */}
+        <div className="mb-6 inline-flex items-center rounded-full border border-slate-800 bg-slate-900/50 px-3 py-1 text-sm text-slate-400 backdrop-blur-sm">
+          <span className="flex h-2 w-2 rounded-full bg-indigo-500 mr-2 animate-pulse"></span>
+          Language Mastery Awaits
+        </div>
+
+        {/* Headline */}
+        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-6 drop-shadow-sm">
+          Welcome to Fluent-Hero
+        </h1>
+
+        {/* Subtitle */}
+        <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+          Master languages efficiently. Manage your progress, quests, and daily streaks in one place.
+        </p>
+
+        {/* CTA Button */}
         <SignInButton mode="modal" forceRedirectUrl="/learn">
-          <Button size="lg" className="w-full">
-            Zaloguj się aby zacząć
+          <Button
+            size="lg"
+            className="bg-white text-slate-950 hover:bg-slate-200 font-semibold px-8 h-12 rounded-lg shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.5)] transition-all duration-300"
+          >
+            Get Started
           </Button>
         </SignInButton>
       </div>
+
+      {/* Footer */}
+      <footer className="absolute bottom-6 text-slate-600 text-sm z-10">
+        &copy; {new Date().getFullYear()} Fluent-Hero. All rights reserved.
+      </footer>
     </main>
   );
 }
