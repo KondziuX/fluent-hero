@@ -6,7 +6,6 @@ import { UnitBanner } from '@/components/unit-banner';
 import { Button } from '@/components/ui/button';
 import { getUnits, getUserProgress, getCourses } from '@/db/queries';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 
 export default async function LearnPage() {
   const userProgress = await getUserProgress();
@@ -15,12 +14,12 @@ export default async function LearnPage() {
   
   const englishCourse = courses.find(c => c.slug === 'angielski-pl-en');
 
-  // --- NOWA, UPROSZCZONA GEOMETRIA ---
-  // Schemat: Środek (0), Lewo (-1), Środek (0), Prawo (1)
-  const COLUMNS = [0, -1, 0, 1]; 
-  const HORIZONTAL_OFFSET = 70; // Jak szeroko rozrzucamy (w px)
-  const LESSON_HEIGHT = 64; // Wysokość przycisku
-  const GAP_HEIGHT = 120; // Odstęp pionowy między przyciskami (sama przerwa)
+  // --- KONFIGURACJA GEOMETRII ---
+  const HORIZONTAL_OFFSET = 70; // Rozrzut na boki (px)
+  const LESSON_HEIGHT = 64;     // Wysokość przycisku (h-16 = 64px)
+  const GAP_HEIGHT = 100;       // Odstęp między kafelkami w pionie
+  // Całkowity skok w pionie między środkami kafelków
+  const TOTAL_DY = GAP_HEIGHT + LESSON_HEIGHT;
 
   if (!userProgress || !userProgress.activeCourse) {
     if (!englishCourse) {
@@ -61,16 +60,28 @@ export default async function LearnPage() {
                 const isCompleted = lesson.isCompleted;
                 const isLockedByHearts = !isCompleted && userProgress.hearts === 0;
                 
-                // Obliczamy pozycję X dla obecnego i następnego elementu
-                const columnIndex = index % COLUMNS.length;
-                const nextColumnIndex = (index + 1) % COLUMNS.length;
-                
-                const currentOffset = COLUMNS[columnIndex] * HORIZONTAL_OFFSET;
-                const nextOffset = COLUMNS[nextColumnIndex] * HORIZONTAL_OFFSET;
-                
-                // Różnica w poziomie, którą musi pokonać linia
-                const deltaX = nextOffset - currentOffset;
+                // --- LOGIKA POZYCJONOWANIA (Twoje wytyczne) ---
+                const getOffset = (idx: number) => {
+                    const isFirst = idx === 0;
+                    const isLast = idx === unit.lessons.length - 1;
 
+                    // 1. Pierwsza i ostatnia lekcja -> ZAWSZE ŚRODEK
+                    if (isFirst || isLast) {
+                        return 0;
+                    }
+
+                    // 2. Reszta naprzemiennie:
+                    // Indeks 1 (Lekcja 2) -> nieparzysty -> LEWO (-OFFSET)
+                    // Indeks 2 (Lekcja 3) -> parzysty    -> PRAWO (+OFFSET)
+                    const isOdd = idx % 2 !== 0; 
+                    return isOdd ? -HORIZONTAL_OFFSET : HORIZONTAL_OFFSET;
+                };
+
+                const currentOffset = getOffset(index);
+                const nextOffset = getOffset(index + 1);
+                
+                // Delta X do następnego kafelka (dla rysowania linii)
+                const deltaX = nextOffset - currentOffset;
                 const isLast = index === unit.lessons.length - 1;
 
                 return (
@@ -79,11 +90,10 @@ export default async function LearnPage() {
                     className="relative flex flex-col items-center"
                     style={{
                       transform: `translateX(${currentOffset}px)`,
-                      // Margines to pusta przestrzeń na linię
                       marginBottom: isLast ? 0 : `${GAP_HEIGHT}px`
                     }}
                   >
-                    {/* --- PRZYCISK --- */}
+                    {/* --- KAFELEK LEKCJI --- */}
                     <div className="relative z-10">
                         {isLockedByHearts ? (
                         <Button
@@ -104,12 +114,11 @@ export default async function LearnPage() {
                         </Link>
                         )}
                         
-                        {/* PODPIS (Dymek) - Zawsze na wierzchu (z-20) */}
-                        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-max text-center z-20">
+                        {/* Dymek z tytułem (tooltip) */}
+                        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-max text-center z-20 transition-opacity opacity-100">
                             {!isLockedByHearts ? (
                                 <div className="text-sm font-bold text-neutral-700 bg-white border-2 border-slate-100 px-3 py-1 rounded-xl shadow-sm">
                                     {lesson.title}
-                                    {/* Mały trójkącik (strzałka) dymka w górę */}
                                     <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-t-2 border-l-2 border-slate-100 rotate-45" />
                                 </div>
                             ) : (
@@ -121,13 +130,13 @@ export default async function LearnPage() {
                     </div>
 
                     {/* --- LINIA (SVG) --- */}
-                    {/* Rysujemy ją pod spodem (z-0). Startuje od środka przycisku w dół. */}
                     {!isLast && (
                       <div 
-                        className="absolute top-8 left-0 pointer-events-none -z-10"
+                        // Fix SVG: width 1px + overflow-visible + centrowanie absolutne
+                        className="absolute top-8 left-1/2 -translate-x-1/2 pointer-events-none -z-10"
                         style={{ 
                             width: '1px', 
-                            height: `${GAP_HEIGHT + LESSON_HEIGHT}px`, // Wysokość całkowita do środka nast. przycisku
+                            height: `${TOTAL_DY}px`,
                         }}
                       >
                          <svg 
@@ -135,25 +144,21 @@ export default async function LearnPage() {
                             width="100%"
                             height="100%"
                          >
-                            {/* Start (M): 0 0 (Środek obecnego przycisku - technicznie top:8 przesuwa to na jego środek)
-                                Koniec: deltaX (przesunięcie w poziomie), pełna wysokość (środek nast. przycisku)
-                                Używamy krzywej Beziera (Q) dla gładkiego łuku
-                            */}
+                            {/* Rysujemy od (0,0) czyli środka obecnego kafelka */}
+                            {/* do (deltaX, TOTAL_DY) czyli środka następnego kafelka */}
                             <path
                               d={`
-                                M 0 0 
-                                Q 0 ${GAP_HEIGHT / 2} 
-                                  ${deltaX / 2} ${GAP_HEIGHT / 2 + 20}
-                                T ${deltaX} ${GAP_HEIGHT + 32}
+                                M 0 0
+                                C 0 ${TOTAL_DY * 0.5}, 
+                                  ${deltaX} ${TOTAL_DY * 0.5}, 
+                                  ${deltaX} ${TOTAL_DY}
                               `}
-                              // ^ T to kontynuacja krzywej gładkiej, 32 to połowa wysokości przycisku (dojazd do środka)
-                              
                               stroke="#cbd5e1" // slate-300
                               strokeWidth="10"
                               fill="none"
-                              strokeDasharray="10 12" // Przerywana
+                              strokeDasharray="10 12"
                               strokeLinecap="round"
-                              className="opacity-60"
+                              className="opacity-50"
                             />
                          </svg>
                       </div>
