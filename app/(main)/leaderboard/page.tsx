@@ -30,6 +30,7 @@ export default async function LeaderboardPage() {
           hearts={userProgress.hearts}
           points={userProgress.xp}
           hasActiveSubscription={false}
+          lastHeartRefill={userProgress.lastHeartRefill}
         />
       </StickyWrapper>
       

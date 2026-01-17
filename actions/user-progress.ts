@@ -65,9 +65,9 @@ export const reduceHearts = async (challengeId: number) => {
     return { error: "hearts" };
   }
 
-  // Odejmujemy 1 serce
   await db.update(userProgress).set({
     hearts: Math.max(currentUserProgress.hearts - 1, 0),
+    lastHeartRefill: currentUserProgress.hearts === 5 ? new Date() : undefined,
   }).where(eq(userProgress.userId, userId));
 
   revalidatePath("/learn");

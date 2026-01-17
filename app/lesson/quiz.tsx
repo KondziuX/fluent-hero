@@ -6,6 +6,7 @@ import { Check, X } from "lucide-react"; // Ikony (opcjonalne)
 import { useRouter } from "next/navigation";
 import { upsertChallengeProgress } from "@/actions/challenge-progress";
 import { reduceHearts } from "@/actions/user-progress";
+import { toast } from "sonner";
 
 // Typy danych, które dostajemy z bazy
 type Challenge = typeof challenges.$inferSelect & {
@@ -93,15 +94,18 @@ export const Quiz = ({
           reduceHearts(challenge.id)
             .then((response) => {
               if (response?.error === "hearts") {
-                // Tu w przyszłości obsłużymy "Koniec gry - brak serc"
-                console.log("Brak serc!"); 
+                toast.error("Straciłeś wszystkie serca!");
+                router.push("/learn"); // Wyrzucamy do menu głównego
+                return;
               }
+              // ----------------------------------
               
               setStatus("wrong");
-              // Odejmujemy też lokalnie, żeby user widział od razu zmianę licznika
-              setHearts((prev) => Math.max(prev - 1, 0));
+              if (!response?.error) {
+                 setHearts((prev) => Math.max(prev - 1, 0));
+              }
             })
-            .catch(() => console.error("Something went wrong"));
+            .catch(() => toast.error("Coś poszło nie tak"));
         });
       }
   };

@@ -22,6 +22,7 @@ export default async function QuestsPage() {
           hearts={userProgress.hearts}
           points={userProgress.xp}
           hasActiveSubscription={false}
+          lastHeartRefill={userProgress.lastHeartRefill}
         />
       </StickyWrapper>
       

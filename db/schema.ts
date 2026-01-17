@@ -171,6 +171,7 @@ export const userProgress = pgTable('user_progress', {
     onDelete: 'cascade',
   }),
   hearts: integer('hearts').notNull().default(5),
+  lastHeartRefill: timestamp('last_heart_refill').defaultNow(),
   xp: integer('xp').notNull().default(0),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
