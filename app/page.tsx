@@ -1,50 +1,61 @@
-import { Button } from '@/components/ui/button';
-import { SignInButton } from '@clerk/nextjs';
-import { auth } from '@clerk/nextjs/server';
-import { redirect } from 'next/navigation';
+import { Button } from "@/components/ui/button";
+import { SignInButton } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import { Zap } from "lucide-react";
 
 export default async function Home() {
   const { userId } = await auth();
 
   if (userId) {
-    redirect('/learn');
+    redirect("/learn");
   }
 
   return (
-    <main className="relative min-h-screen flex flex-col items-center justify-center bg-slate-950 text-slate-50 overflow-hidden selection:bg-indigo-500/30">
-      {/* Background Gradients/Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900/50 via-slate-950 to-slate-950 pointer-events-none" />
+    <main className="min-h-screen bg-slate-950 text-slate-50 relative overflow-hidden selection:bg-indigo-500/30">
+      {/* Background Grid Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
-      <div className="z-10 flex flex-col items-center text-center max-w-3xl px-6 animate-fade-in-up">
-        {/* Badge */}
-        <div className="mb-6 inline-flex items-center rounded-full border border-slate-800 bg-slate-900/50 px-3 py-1 text-sm text-slate-400 backdrop-blur-sm">
-          <span className="flex h-2 w-2 rounded-full bg-indigo-500 mr-2 animate-pulse"></span>
-          Language Mastery Awaits
+      {/* Spotlight Effect */}
+      <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-indigo-500 opacity-20 blur-[100px]"></div>
+
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 max-w-7xl mx-auto w-full backdrop-blur-sm bg-slate-950/50 border-b border-slate-800/50">
+        <div className="flex items-center space-x-2 font-bold text-xl tracking-tight text-white">
+          <div className="bg-indigo-600 p-1.5 rounded-lg shadow-lg shadow-indigo-500/20">
+            <Zap className="w-5 h-5 text-white fill-white" />
+          </div>
+          <span>Fluent-Hero</span>
         </div>
+        <SignInButton mode="modal" forceRedirectUrl="/learn">
+          <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-white/5 transition-colors duration-200">
+            Login
+          </Button>
+        </SignInButton>
+      </nav>
 
+      {/* Hero Content */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-4 max-w-5xl mx-auto pt-20 animate-fade-in-up">
         {/* Headline */}
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-6 drop-shadow-sm">
-          Witaj w Fluent-Hero
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white mb-8 drop-shadow-2xl">
+          Master any language. Fast.
         </h1>
 
-        {/* Subtitle */}
-        <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Opanuj języki obce efektywnie. Zarządzaj postępami, wyzwaniami i codzienną passą w jednym miejscu.
+        {/* Subtext */}
+        <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed tracking-wide">
+          The all-in-one platform for language learning. Track progress, compete in leaderboards, and complete daily quests.
         </p>
 
-        {/* CTA Button */}
+        {/* CTA */}
         <SignInButton mode="modal" forceRedirectUrl="/learn">
-          <Button
-            size="lg"
-            className="bg-white text-slate-950 hover:bg-slate-200 font-semibold px-8 h-12 rounded-lg shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.5)] transition-all duration-300"
-          >
-            Rozpocznij naukę
+          <Button size="lg" className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 h-14 text-lg rounded-full shadow-[0_0_40px_-10px_rgba(79,70,229,0.5)] transition-all duration-300 hover:shadow-[0_0_60px_-15px_rgba(79,70,229,0.6)] hover:scale-105 border border-indigo-500/20">
+            Get Started
           </Button>
         </SignInButton>
       </div>
 
       {/* Footer */}
-      <footer className="absolute bottom-6 text-slate-600 text-sm z-10">
+      <footer className="absolute bottom-6 w-full text-center text-slate-600 text-sm z-10">
         &copy; {new Date().getFullYear()} Fluent-Hero. All rights reserved.
       </footer>
     </main>
