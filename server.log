@@ -1,0 +1,33 @@
+
+> fluent-hero@0.1.0 dev
+> next dev
+
+▲ Next.js 16.1.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+
+✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+✓ Ready in 1749ms
+○ Compiling / ...
+
+[35m
+[Clerk]:[0m You are running in keyless mode.
+You can [35mclaim your keys[0m by visiting https://dashboard.clerk.com/apps/claim?token=hwafv1ognbctetvx6ngskas6ex5riyz5kku3xedt&return_url=http%3A%2F%2Flocalhost%3A3000%2F
+
+ GET / 200 in 7.3s (compile: 5.9s, proxy.ts: 172ms, render: 1230ms)
+ POST / 200 in 95ms (compile: 14ms, proxy.ts: 40ms, render: 41ms)
+ GET / 200 in 90ms (compile: 6ms, proxy.ts: 24ms, render: 61ms)
+ POST / 303 in 163ms (compile: 5ms, proxy.ts: 8ms, render: 150ms)
+ GET / 200 in 67ms (compile: 5ms, proxy.ts: 13ms, render: 49ms)
+✓ Compiled in 228ms
+ GET / 200 in 953ms (compile: 433ms, proxy.ts: 30ms, render: 489ms)
+ POST / 200 in 32ms (compile: 7ms, proxy.ts: 10ms, render: 14ms)
+ GET / 200 in 116ms (compile: 8ms, proxy.ts: 24ms, render: 84ms)
+ POST / 303 in 188ms (compile: 5ms, proxy.ts: 13ms, render: 170ms)
+ GET / 200 in 63ms (compile: 10ms, proxy.ts: 13ms, render: 41ms)
