@@ -24,12 +24,12 @@ export default async function Home() {
 
         {/* Headline */}
         <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 mb-6 drop-shadow-sm">
-          Welcome to Fluent-Hero
+          Witaj w Fluent-Hero
         </h1>
 
         {/* Subtitle */}
         <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Master languages efficiently. Manage your progress, quests, and daily streaks in one place.
+          Opanuj języki obce efektywnie. Zarządzaj postępami, wyzwaniami i codzienną passą w jednym miejscu.
         </p>
 
         {/* CTA Button */}
@@ -38,7 +38,7 @@ export default async function Home() {
             size="lg"
             className="bg-white text-slate-950 hover:bg-slate-200 font-semibold px-8 h-12 rounded-lg shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] hover:shadow-[0_0_25px_-5px_rgba(255,255,255,0.5)] transition-all duration-300"
           >
-            Get Started
+            Rozpocznij naukę
           </Button>
         </SignInButton>
       </div>
