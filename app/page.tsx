@@ -29,7 +29,7 @@ export default async function Home() {
         </div>
         <SignInButton mode="modal" forceRedirectUrl="/learn">
           <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-white/5 transition-colors duration-200">
-            Login
+            Zaloguj się
           </Button>
         </SignInButton>
       </nav>
@@ -38,25 +38,25 @@ export default async function Home() {
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-4 max-w-5xl mx-auto pt-20 animate-fade-in-up">
         {/* Headline */}
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white mb-8 drop-shadow-2xl">
-          Master any language. Fast.
+          Opanuj dowolny język. Szybko.
         </h1>
 
         {/* Subtext */}
         <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed tracking-wide">
-          The all-in-one platform for language learning. Track progress, compete in leaderboards, and complete daily quests.
+          Kompleksowa platforma do nauki. Śledź postępy, rywalizuj w rankingach i realizuj codzienne cele w jednym miejscu.
         </p>
 
         {/* CTA */}
         <SignInButton mode="modal" forceRedirectUrl="/learn">
           <Button size="lg" className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 h-14 text-lg rounded-full shadow-[0_0_40px_-10px_rgba(79,70,229,0.5)] transition-all duration-300 hover:shadow-[0_0_60px_-15px_rgba(79,70,229,0.6)] hover:scale-105 border border-indigo-500/20">
-            Get Started
+            Rozpocznij naukę
           </Button>
         </SignInButton>
       </div>
 
       {/* Footer */}
       <footer className="absolute bottom-6 w-full text-center text-slate-600 text-sm z-10">
-        &copy; {new Date().getFullYear()} Fluent-Hero. All rights reserved.
+        &copy; {new Date().getFullYear()} Fluent-Hero. Wszelkie prawa zastrzeżone.
       </footer>
     </main>
   );

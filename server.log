@@ -25,3 +25,9 @@ You can [35mclaim your keys[0m by visiting https://dashboard.clerk.com/apps/cl
  GET / 200 in 90ms (compile: 6ms, proxy.ts: 24ms, render: 61ms)
  POST / 303 in 163ms (compile: 5ms, proxy.ts: 8ms, render: 150ms)
  GET / 200 in 67ms (compile: 5ms, proxy.ts: 13ms, render: 49ms)
+✓ Compiled in 228ms
+ GET / 200 in 953ms (compile: 433ms, proxy.ts: 30ms, render: 489ms)
+ POST / 200 in 32ms (compile: 7ms, proxy.ts: 10ms, render: 14ms)
+ GET / 200 in 116ms (compile: 8ms, proxy.ts: 24ms, render: 84ms)
+ POST / 303 in 188ms (compile: 5ms, proxy.ts: 13ms, render: 170ms)
+ GET / 200 in 63ms (compile: 10ms, proxy.ts: 13ms, render: 41ms)
