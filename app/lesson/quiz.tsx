@@ -1,12 +1,14 @@
 "use client";
+
 import { useState, useTransition, useEffect } from "react";
 import { challengeOptions, challenges } from "@/db/schema";
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react"; // Ikony (opcjonalne)
+import { Check, X, Trophy, Target, Clock, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { upsertChallengeProgress } from "@/actions/challenge-progress";
 import { reduceHearts } from "@/actions/user-progress";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 // Typy danych, które dostajemy z bazy
 type Challenge = typeof challenges.$inferSelect & {
@@ -34,10 +36,22 @@ export const Quiz = ({
   const [selectedOption, setSelectedOption] = useState<number | undefined>();
   const [status, setStatus] = useState<"none" | "correct" | "wrong">("none");
 
+  // --- STATYSTYKI LEKCJI ---
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [startTime, setStartTime] = useState<Date | null>(null);
+  const [endTime, setEndTime] = useState<Date | null>(null);
+  const [hasFailed, setHasFailed] = useState(false); // Czy w obecnym pytaniu był błąd?
+  const [isCompleted, setIsCompleted] = useState(false); // Czy lekcja zakończona?
+
   const challenge = initialLessonChallenges[activeIndex];
   
   // Zamiast useMemo używamy State, żeby "zamrozić" odpowiedzi
   const [options, setOptions] = useState<Challenge["challengeOptions"]>([]);
+
+  // Inicjalizacja czasu startu
+  useEffect(() => {
+    setStartTime(new Date());
+  }, []);
 
   useEffect(() => {
     if (!challenge) return;
@@ -56,9 +70,10 @@ export const Quiz = ({
 
   // 2. Funkcja przejścia dalej
   const onNext = () => {
-    // Jeśli to ostatnie pytanie -> wracamy do mapy (MVP)
+    // Jeśli to ostatnie pytanie -> koniec lekcji (Pokaż podsumowanie)
     if (activeIndex === initialLessonChallenges.length - 1) {
-       router.push("/learn");
+       setEndTime(new Date());
+       setIsCompleted(true);
        return;
     }
     
@@ -66,6 +81,7 @@ export const Quiz = ({
     setActiveIndex((current) => current + 1);
     setSelectedOption(undefined);
     setStatus("none");
+    setHasFailed(false); // Resetujemy flagę błędu dla nowego pytania
   };
 
   // 3. Funkcja sprawdzania odpowiedzi
@@ -77,6 +93,11 @@ export const Quiz = ({
     if (!correctOption) return;
 
     if (correctOption.id === selectedOption) {
+        // Jeśli nie było błędu wcześniej w tym pytaniu -> zaliczamy do poprawnych (do statystyk)
+        if (!hasFailed) {
+            setCorrectAnswers((prev) => prev + 1);
+        }
+
         // URUCHAMIAMY ZAPIS DO BAZY
         startTransition(() => {
           upsertChallengeProgress(challenge.id)
@@ -89,6 +110,8 @@ export const Quiz = ({
             });
         });
     } else {
+        setHasFailed(true); // Oznaczamy, że użytkownik się pomylił w tym pytaniu
+
         // BŁĘDNA ODPOWIEDŹ
         startTransition(() => {
           reduceHearts(challenge.id)
@@ -110,7 +133,65 @@ export const Quiz = ({
       }
   };
 
-  // --- EKRAN KOŃCOWY (zabezpieczenie) ---
+  // --- EKRAN PODSUMOWANIA ---
+  if (isCompleted) {
+    const duration = (endTime && startTime) ? endTime.getTime() - startTime.getTime() : 0;
+    const minutes = Math.floor(duration / 1000 / 60);
+    const seconds = Math.floor((duration / 1000) % 60);
+    const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+    // XP: Serwer daje 10 XP za każde ukończone wyzwanie (niezależnie od błędów)
+    const xp = initialLessonChallenges.length * 10;
+
+    // Dokładność: Procent poprawnych odpowiedzi (za pierwszym razem)
+    const accuracy = Math.round((correctAnswers / initialLessonChallenges.length) * 100);
+
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen gap-6 p-6 max-w-lg mx-auto w-full animate-in fade-in duration-500">
+            <div className="flex flex-col items-center gap-y-4 mb-4">
+                <div className="bg-green-500 p-4 rounded-full animate-bounce">
+                    <Trophy className="h-10 w-10 text-white" />
+                </div>
+                <h1 className="text-3xl font-bold text-center animate-in zoom-in duration-700">
+                    Lekcja ukończona!
+                </h1>
+                <p className="text-slate-500 text-center text-lg">
+                    Świetna robota! Oto Twoje wyniki.
+                </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 w-full">
+                <div className="p-4 border-2 border-orange-400 bg-orange-50 rounded-xl flex flex-col items-center gap-2">
+                    <Trophy className="h-6 w-6 text-orange-500" />
+                    <div className="font-bold text-2xl text-orange-600">+{xp}</div>
+                    <div className="text-xs text-orange-500 uppercase font-bold">XP</div>
+                </div>
+                <div className="p-4 border-2 border-green-400 bg-green-50 rounded-xl flex flex-col items-center gap-2">
+                    <Target className="h-6 w-6 text-green-500" />
+                    <div className="font-bold text-2xl text-green-600">{accuracy}%</div>
+                    <div className="text-xs text-green-500 uppercase font-bold">Dokładność</div>
+                </div>
+                <div className="col-span-2 p-4 border-2 border-sky-400 bg-sky-50 rounded-xl flex flex-col items-center gap-2">
+                    <Clock className="h-6 w-6 text-sky-500" />
+                    <div className="font-bold text-2xl text-sky-600">{formattedTime}</div>
+                    <div className="text-xs text-sky-500 uppercase font-bold">Czas</div>
+                </div>
+            </div>
+
+            <div className="w-full mt-8">
+                 <Button
+                    size="lg"
+                    className="w-full"
+                    onClick={() => router.push("/learn")}
+                 >
+                    Kontynuuj
+                 </Button>
+            </div>
+        </div>
+    );
+  }
+
+  // --- EKRAN ZABEZPIECZAJĄCY (Brak pytania) ---
   if (!challenge) {
     return (
       <div className="flex flex-col items-center justify-center h-full">
@@ -122,7 +203,7 @@ export const Quiz = ({
     );
   }
 
-  // --- WIDOK GŁÓWNY ---
+  // --- WIDOK GŁÓWNY (PYTANIE) ---
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-6 p-6 max-w-lg mx-auto w-full">
       
