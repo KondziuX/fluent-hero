@@ -33,12 +33,12 @@ export const Items = ({
 
   return (
     <ul className="w-full">
-      <div className="flex items-center w-full p-4 gap-x-4 border-t-2">
+      <div className="flex items-center w-full p-4 gap-x-4 border-t-2 border-slate-200 dark:border-slate-700">
         {/* Ikonka serca - jeśli nie masz pliku heart.svg, użyj emoji ❤️ */}
         <div className="text-4xl">❤️</div>
         
         <div className="flex-1">
-          <p className="text-neutral-700 text-base lg:text-xl font-bold">
+          <p className="text-neutral-700 dark:text-neutral-300 text-base lg:text-xl font-bold">
             Odnów serca
           </p>
         </div>

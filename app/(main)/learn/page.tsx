@@ -117,12 +117,12 @@ export default async function LearnPage() {
                         {/* Dymek z tytułem (tooltip) */}
                         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-max text-center z-20 transition-opacity opacity-100">
                             {!isLockedByHearts ? (
-                                <div className="text-sm font-bold text-neutral-700 bg-white border-2 border-slate-100 px-3 py-1 rounded-xl shadow-sm">
+                                <div className="text-sm font-bold text-neutral-700 dark:text-neutral-200 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 px-3 py-1 rounded-xl shadow-sm">
                                     {lesson.title}
-                                    <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-t-2 border-l-2 border-slate-100 rotate-45" />
+                                    <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white dark:bg-slate-900 border-t-2 border-l-2 border-slate-100 dark:border-slate-800 rotate-45" />
                                 </div>
                             ) : (
-                                <div className="text-xs text-rose-500 font-bold bg-white/90 px-2 py-1 rounded shadow-sm border border-rose-100">
+                                <div className="text-xs text-rose-500 font-bold bg-white/90 dark:bg-slate-900/90 px-2 py-1 rounded shadow-sm border border-rose-100 dark:border-rose-900">
                                     Brak serc
                                 </div>
                             )}
@@ -153,12 +153,11 @@ export default async function LearnPage() {
                                   ${deltaX} ${TOTAL_DY * 0.5}, 
                                   ${deltaX} ${TOTAL_DY}
                               `}
-                              stroke="#cbd5e1" // slate-300
                               strokeWidth="10"
                               fill="none"
                               strokeDasharray="10 12"
                               strokeLinecap="round"
-                              className="opacity-50"
+                              className="opacity-50 stroke-slate-300 dark:stroke-slate-700"
                             />
                          </svg>
                       </div>

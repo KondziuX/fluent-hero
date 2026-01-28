@@ -12,10 +12,10 @@ export const UnitBanner = ({
   description,
 }: Props) => {
   return (
-    <div className="w-full rounded-xl bg-green-500 p-5 text-white flex items-center justify-between shadow-md mb-6">
+    <div className="w-full rounded-xl bg-green-500 dark:bg-slate-900 p-5 text-white dark:text-neutral-200 flex items-center justify-between shadow-md mb-6 border-2 border-transparent dark:border-slate-800">
       <div className="space-y-2.5">
         <h3 className="text-2xl font-bold">{title}</h3>
-        <p className="text-lg text-green-100">
+        <p className="text-lg text-green-100 dark:text-slate-400">
           {description}
         </p>
       </div>
