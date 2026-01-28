@@ -33,14 +33,14 @@ export default async function ShopPage() {
             height={90}
             width={90}
           />
-          <h1 className="text-center font-bold text-neutral-800 text-2xl my-6">
+          <h1 className="text-center font-bold text-neutral-800 dark:text-neutral-200 text-2xl my-6">
             Sklep
           </h1>
           <p className="text-muted-foreground text-center text-lg mb-6">
             Wydawaj punkty na fajne rzeczy!
           </p>
           
-          <div className="bg-white p-4 w-full rounded-xl shadow-sm border">
+          <div className="bg-white dark:bg-slate-900 p-4 w-full rounded-xl shadow-sm border dark:border-slate-800">
             <Items
                 hearts={userProgress.hearts}
                 points={userProgress.xp}

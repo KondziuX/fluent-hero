@@ -42,7 +42,7 @@ export default async function LeaderboardPage() {
             height={90}
             width={90}
           />
-          <h1 className="text-center font-bold text-neutral-800 text-2xl my-6">
+          <h1 className="text-center font-bold text-neutral-800 dark:text-neutral-200 text-2xl my-6">
             Ranking
           </h1>
           <p className="text-muted-foreground text-center text-lg mb-6">
@@ -50,19 +50,19 @@ export default async function LeaderboardPage() {
           </p>
           
           {/* Tabela Rankingu */}
-          <div className="w-full rounded-xl bg-white p-4 shadow-sm border space-y-4">
+          <div className="w-full rounded-xl bg-white dark:bg-slate-900 p-4 shadow-sm border dark:border-slate-800 space-y-4">
              {topTenUsers.map((user, index) => (
                 <div 
                   key={user.userId}
-                  className="flex items-center w-full p-2 px-4 rounded-xl hover:bg-slate-100 transition"
+                  className="flex items-center w-full p-2 px-4 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                 >
                   {/* Pozycja w rankingu */}
-                  <p className="font-bold text-lime-700 mr-4 text-xl">
+                  <p className="font-bold text-lime-700 dark:text-lime-400 mr-4 text-xl">
                     {index + 1}
                   </p>
                   
                   {/* Awatar Użytkownika */}
-                  <div className="ml-2 mr-6 h-12 w-12 rounded-full overflow-hidden border-2 border-slate-200">
+                  <div className="ml-2 mr-6 h-12 w-12 rounded-full overflow-hidden border-2 border-slate-200 dark:border-slate-700">
                      {/* Używamy tagu <img> zamiast <Image>, aby uniknąć problemów z domenami Clerk w next.config */}
                      <img
                         src={user.userImage}
@@ -72,7 +72,7 @@ export default async function LeaderboardPage() {
                   </div>
 
                   {/* Imię */}
-                  <p className="font-bold text-neutral-800 flex-1 text-lg">
+                  <p className="font-bold text-neutral-800 dark:text-neutral-200 flex-1 text-lg">
                      {user.userName}
                   </p>
                   
