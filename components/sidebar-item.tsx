@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 
 type Props = {
   label: string;
-  iconSrc: string; // Na razie użyjemy ścieżek do obrazków, nawet jak ich nie ma (obsłużymy to)
+  iconSrc: string;
   href: string;
 };
 
@@ -20,24 +20,24 @@ export const SidebarItem = ({
   const active = pathname === href;
 
   return (
-<Button
-      variant={active ? "sidebarOutline" : "sidebar"}
-      className="justify-start h-[52px]"
+    <Button
+      variant="ghost"
+      className={`justify-start h-[52px] text-lg mb-1 transition-all duration-200 
+        ${active 
+          ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-[0_0_20px_-5px_rgba(99,102,241,0.2)]" 
+          : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent"
+        }
+      `}
       asChild
     >
       <Link href={href}>
-        {/* Odkomentowane: */}
         <Image 
             src={iconSrc} 
             alt={label} 
-            className="mr-5" 
+            className="mr-5 opacity-90" 
             height={32} 
             width={32} 
         />
-        
-        {/* Zakomentowane emoji: */}
-        {/* <span className="mr-5 text-xl">...</span> */}
-        
         {label}
       </Link>
     </Button>

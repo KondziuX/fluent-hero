@@ -6,12 +6,11 @@ export const MobileSidebar = () => {
   return (
     <Sheet>
       <SheetTrigger>
-        <Menu className="text-white" />
+        <Menu className="text-white w-6 h-6 hover:text-indigo-400 transition" />
       </SheetTrigger>
-      <SheetContent className="p-0 z-[100]" side="left">
-        {/* Dodajemy ukryty tytuł dla dostępności (wymagane przez Radix UI) */}
+      <SheetContent className="p-0 z-[100] bg-slate-950 border-r border-slate-800 w-[256px]" side="left">
         <SheetTitle className="hidden">Menu nawigacji</SheetTitle>
-        <Sidebar />
+        <Sidebar className="h-full border-none" />
       </SheetContent>
     </Sheet>
   );
