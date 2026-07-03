@@ -8,131 +8,40 @@ export const MVP_SEED_CONTENT = {
     },
     unit: {
       slug: 'powitanie',
-      title: 'Powitanie',
+      title: 'Powitania i pierwszy kontakt',
       order: 1,
       description: 'Podstawowe zwroty na start.',
     },
     lessons: [
-      // === LESSON 1 ===
+      // === LESSON 1 (FLASHCARD MODE) ===
       {
         lessonIndex: 1,
         slug: 'czesc-i-pa',
-        title: 'Cześć i pa',
+        title: 'Start rozmowy: najbezpieczniejsze powitania',
         order: 1,
         isReview: false,
         theoryMarkdown: `
-  # Cześć i pa
+  # Start rozmowy: najbezpieczniejsze powitania
   
-  W tej lekcji poznasz podstawowe **powitania** i **pożegnania**.
+  W tej lekcji poznasz najważniejsze angielskie powitania, które możesz użyć w każdej sytuacji.
   
-  ## Powitania
-  - **Hello** – neutralne "cześć" (bezpieczne w każdej sytuacji)
-  - **Hi** – bardziej nieformalne "cześć"
+  ## Bezpieczne powitania
+  - **Hello** – uniwersalne, działa wszędzie
+  - **Hi** – krótsze, luźniejsze
+  - **Hi there** – przyjazne i naturalne
+  - **Hey** – bardzo luźne, do znajomych
   
-  ## Pożegnania
-  - **Goodbye** – bardziej formalne "do widzenia"
-  - **Bye** / **Bye-bye** – nieformalne "pa"
+  ## Rozpoczynanie rozmowy
+  - **Excuse me** – grzeczne zwrócenie uwagi
+  - **Hello, can I ask you something?** – powitanie z pytaniem
   
-  > Pro tip: "Good morning / afternoon / evening" poznasz później.
+  ## Gdy kogoś znasz
+  - **Good to see you** – miło Cię widzieć
+  - **Nice to see you** – naturalna wersja
         `.trim(),
-        challenges: [
-          {
-            key: 'L1_Q01',
-            type: 'SELECT',
-            order: 1,
-            prompt: 'Przetłumacz na angielski: „Cześć”.',
-            options: [
-              { key: 'L1_Q01_A', order: 1, text: 'Hello', isCorrect: true },
-              { key: 'L1_Q01_B', order: 2, text: 'Goodbye', isCorrect: false },
-              { key: 'L1_Q01_C', order: 3, text: 'Thanks', isCorrect: false },
-              { key: 'L1_Q01_D', order: 4, text: 'Sorry', isCorrect: false },
-            ],
-          },
-          {
-            key: 'L1_Q02',
-            type: 'SELECT',
-            order: 2,
-            prompt: 'Przetłumacz na angielski: „Cześć” (bardziej nieformalnie).',
-            options: [
-              { key: 'L1_Q02_A', order: 1, text: 'Hi', isCorrect: true },
-              { key: 'L1_Q02_B', order: 2, text: 'Hello', isCorrect: false },
-              { key: 'L1_Q02_C', order: 3, text: 'Bye', isCorrect: false },
-              { key: 'L1_Q02_D', order: 4, text: 'Please', isCorrect: false },
-            ],
-          },
-          {
-            key: 'L1_Q03',
-            type: 'SELECT',
-            order: 3,
-            prompt: 'Przetłumacz na angielski: „Do widzenia” (bardziej formalnie).',
-            options: [
-              { key: 'L1_Q03_A', order: 1, text: 'Goodbye', isCorrect: true },
-              { key: 'L1_Q03_B', order: 2, text: 'Bye', isCorrect: false },
-              { key: 'L1_Q03_C', order: 3, text: 'Hello', isCorrect: false },
-              { key: 'L1_Q03_D', order: 4, text: 'Good morning', isCorrect: false },
-            ],
-          },
-          {
-            key: 'L1_Q04',
-            type: 'SELECT',
-            order: 4,
-            prompt: 'Przetłumacz na angielski: „Pa” (nieformalnie).',
-            options: [
-              { key: 'L1_Q04_A', order: 1, text: 'Bye', isCorrect: true },
-              { key: 'L1_Q04_B', order: 2, text: 'Goodbye', isCorrect: false },
-              { key: 'L1_Q04_C', order: 3, text: 'Hi', isCorrect: false },
-              { key: 'L1_Q04_D', order: 4, text: 'No', isCorrect: false },
-            ],
-          },
-          {
-            key: 'L1_Q05',
-            type: 'SELECT',
-            order: 5,
-            prompt: 'Wybierz bardziej formalne pożegnanie.',
-            options: [
-              { key: 'L1_Q05_A', order: 1, text: 'Goodbye', isCorrect: true },
-              { key: 'L1_Q05_B', order: 2, text: 'Bye', isCorrect: false },
-              { key: 'L1_Q05_C', order: 3, text: 'Hi', isCorrect: false },
-              { key: 'L1_Q05_D', order: 4, text: 'Great!', isCorrect: false },
-            ],
-          },
-          {
-            key: 'L1_Q06',
-            type: 'SELECT',
-            order: 6,
-            prompt: 'Wybierz bardziej nieformalne powitanie.',
-            options: [
-              { key: 'L1_Q06_A', order: 1, text: 'Hi', isCorrect: true },
-              { key: 'L1_Q06_B', order: 2, text: 'Hello', isCorrect: false },
-              { key: 'L1_Q06_C', order: 3, text: 'Goodbye', isCorrect: false },
-              { key: 'L1_Q06_D', order: 4, text: 'Not bad.', isCorrect: false },
-            ],
-          },
-          {
-            key: 'L1_Q07',
-            type: 'SELECT',
-            order: 7,
-            prompt: 'Przetłumacz na angielski: „Hej!”.',
-            options: [
-              { key: 'L1_Q07_A', order: 1, text: 'Hi', isCorrect: true },
-              { key: 'L1_Q07_B', order: 2, text: 'Goodbye', isCorrect: false },
-              { key: 'L1_Q07_C', order: 3, text: 'Sorry', isCorrect: false },
-              { key: 'L1_Q07_D', order: 4, text: 'Thanks', isCorrect: false },
-            ],
-          },
-          {
-            key: 'L1_Q08',
-            type: 'SELECT',
-            order: 8,
-            prompt: 'Przetłumacz na angielski: „Witaj” (neutralnie).',
-            options: [
-              { key: 'L1_Q08_A', order: 1, text: 'Hello', isCorrect: true },
-              { key: 'L1_Q08_B', order: 2, text: 'Bye', isCorrect: false },
-              { key: 'L1_Q08_C', order: 3, text: 'Goodbye', isCorrect: false },
-              { key: 'L1_Q08_D', order: 4, text: 'Please', isCorrect: false },
-            ],
-          },
-        ],
+        // Lesson 1 uses flashcards instead of quiz challenges.
+        // The flashcards are defined separately and used by the FlashcardLesson component.
+        challenges: [],
       },
       // === LESSON 2 ===
       {

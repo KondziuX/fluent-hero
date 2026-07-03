@@ -1,6 +1,10 @@
 import { getLesson, getUserProgress } from "@/db/queries";
 import { redirect } from "next/navigation";
-import { Quiz } from "../quiz"; // Import komponentu
+import { Quiz } from "../quiz";
+import { FlashcardLesson } from "../flashcard-lesson";
+
+// Lesson 1 (ID = 1) uses the new flashcard mode
+const FLASHCARD_LESSON_IDS = [1];
 
 export default async function LessonPage({
   params,
@@ -10,6 +14,12 @@ export default async function LessonPage({
   const { lessonId } = await params;
   const id = Number(lessonId);
 
+  // Lesson 1 uses flashcard mode
+  if (FLASHCARD_LESSON_IDS.includes(id)) {
+    return <FlashcardLesson lessonId={id} />;
+  }
+
+  // Other lessons use the existing quiz mode
   const [lesson, userProgress] = await Promise.all([
     getLesson(id),
     getUserProgress(),
@@ -19,9 +29,9 @@ export default async function LessonPage({
     redirect("/learn");
   }
 
-  // Obliczamy % postępu (na razie 0)
+  // Calculate initial progress percentage
   const initialPercentage = lesson.challenges
-  .filter((challenge) => challenge.isCompleted)
+    .filter((challenge) => challenge.isCompleted)
     .length / lesson.challenges.length * 100;
 
   return (
