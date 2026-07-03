@@ -106,7 +106,7 @@ export default async function LearnPage() {
                         ) : (
                         <Link href={`/lesson/${lesson.id}`}>
                             <Button
-                            variant={lesson.isCompleted ? "default" : "secondary"}
+                            variant={lesson.isCompleted ? "completed" : "secondary"}
                             className="h-16 w-16 rounded-full border-b-4 active:border-b-0 text-xl"
                             >
                             {lesson.isCompleted ? "✓" : index + 1}
