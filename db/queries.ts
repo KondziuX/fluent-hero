@@ -1,11 +1,14 @@
 import { cache } from 'react';
 import db from '@/db';
 import { eq, asc } from 'drizzle-orm';
-import { courses, units, lessons, challengeProgress, userProgress } from '@/db/schema';
+import { courses, units, lessons, challengeProgress, userProgress, lessonProgress } from '@/db/schema';
 import { auth } from '@clerk/nextjs/server';
 
 // Stała: Czas odnawiania jednego serca w milisekundach (3 minuty)
-const HEART_REFILL_TIME = 3 * 60 * 1000; 
+const HEART_REFILL_TIME = 3 * 60 * 1000;
+
+// Próg zaliczenia lekcji: 80%
+const LESSON_COMPLETION_THRESHOLD = 80;
 
 // Używamy cache z React, aby nie męczyć bazy przy każdym odświeżeniu
 export const getCourses = cache(async () => {
@@ -47,23 +50,23 @@ export const getUserProgress = cache(async () => {
       const newHearts = Math.min(data.hearts + heartsToAdd, 5);
       
       // Obliczamy nowy czas "startu" odliczania.
-      // Nie ustawiamy "teraz", tylko "kiedy powinno wpaść ostatnie serce", 
+      // Nie ustawiamy "teraz", tylko "kiedy powinno wpaść ostatnie serce",
       // żeby zachować "resztki" czasu na kolejne serce.
-      const newLastHeartRefill = newHearts === 5 
+      const newLastHeartRefill = newHearts === 5
         ? null // Jak pełne, to zerujemy licznik
         : new Date(lastRefill + (heartsToAdd * HEART_REFILL_TIME));
 
       // Aktualizujemy bazę danych
       await db.update(userProgress).set({
         hearts: newHearts,
-        lastHeartRefill: newLastHeartRefill, 
+        lastHeartRefill: newLastHeartRefill,
       }).where(eq(userProgress.userId, userId));
 
       // Zwracamy zaktualizowane dane lokalnie (żeby user widział efekt od razu)
-      return { 
-        ...data, 
-        hearts: newHearts, 
-        lastHeartRefill: newLastHeartRefill 
+      return {
+        ...data,
+        hearts: newHearts,
+        lastHeartRefill: newLastHeartRefill
       };
     }
   }
@@ -73,14 +76,14 @@ export const getUserProgress = cache(async () => {
 });
 
 export const getUnits = cache(async () => {
-  const userProgress = await getUserProgress();
+  const userProgressData = await getUserProgress();
 
-  if (!userProgress?.activeCourseId) {
+  if (!userProgressData?.activeCourseId) {
     return [];
   }
 
   const data = await db.query.units.findMany({
-    where: eq(units.courseId, userProgress.activeCourseId),
+    where: eq(units.courseId, userProgressData.activeCourseId),
     orderBy: [asc(units.order)],
     with: {
       lessons: {
@@ -89,7 +92,7 @@ export const getUnits = cache(async () => {
           challenges: {
             with: {
               challengeProgress: {
-                where: eq(challengeProgress.userId, userProgress.userId || 'placeholder'),
+                where: eq(challengeProgress.userId, userProgressData.userId || 'placeholder'),
               }
             }
           }
@@ -98,16 +101,42 @@ export const getUnits = cache(async () => {
     },
   });
 
+  // Fetch lesson progress for the user (flashcard and dialog lessons)
+  const lessonProgressData = await db.query.lessonProgress.findMany({
+    where: eq(lessonProgress.userId, userProgressData.userId || 'placeholder'),
+  });
+
+  const lessonProgressMap = new Map(
+    lessonProgressData.map(lp => [lp.lessonId, lp])
+  );
+
   const normalizedData = data.map((unit) => {
     const lessonsWithCompletedStatus = unit.lessons.map((lesson) => {
+      // Check if this lesson has lessonProgress (flashcard/dialog mode)
+      const lp = lessonProgressMap.get(lesson.id);
+
+      if (lp) {
+        // Use lessonProgress data: completed if percentage >= 80%
+        return {
+          ...lesson,
+          isCompleted: lp.completed,
+          percentage: lp.percentage,
+        };
+      }
+
+      // For quiz-based lessons (with DB challenges), check challenge progress
       const allChallenges = lesson.challenges;
       const completedChallenges = allChallenges.filter((challenge) => {
         return challenge.challengeProgress && challenge.challengeProgress.length > 0 && challenge.challengeProgress[0].isCompleted;
       });
 
-      const isCompleted = allChallenges.length > 0 && allChallenges.length === completedChallenges.length;
+      // 80% threshold: lesson is completed if at least 80% of challenges are completed
+      const percentage = allChallenges.length > 0
+        ? Math.round((completedChallenges.length / allChallenges.length) * 100)
+        : 0;
+      const isCompleted = allChallenges.length > 0 && percentage >= LESSON_COMPLETION_THRESHOLD;
 
-      return { ...lesson, isCompleted };
+      return { ...lesson, isCompleted, percentage };
     });
 
     return { ...unit, lessons: lessonsWithCompletedStatus };
