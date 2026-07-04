@@ -31,8 +31,9 @@ export const Sidebar = ({ className }: Props) => {
       
       <div className="flex flex-col gap-y-1 flex-1">
         <SidebarItem label="Nauka" href="/learn" iconSrc="/learn.svg" />
+        <SidebarItem label="Powtórki" href="/reviews" iconSrc="/learn.svg" />
+        <SidebarItem label="Misje" href="/quests" iconSrc="/quests.svg" />
         <SidebarItem label="Ranking" href="/leaderboard" iconSrc="/leaderboard.svg" />
-        <SidebarItem label="Zadania" href="/quests" iconSrc="/quests.svg" />
         <SidebarItem label="Sklep" href="/shop" iconSrc="/shop.svg" />
       </div>
 
@@ -45,11 +46,11 @@ export const Sidebar = ({ className }: Props) => {
         
         <ClerkLoaded>
           <div className="flex items-center gap-x-4">
-            <UserButton 
-              afterSignOutUrl="/" 
+            <UserButton
+              afterSignOutUrl="/"
               appearance={{
                 elements: {
-                  userButtonAvatarBox: "h-[48px] w-[48px] ring-2 ring-[#E2E8F0]", 
+                  userButtonAvatarBox: "h-[48px] w-[48px] ring-2 ring-[#E2E8F0]",
                   userButtonTrigger: "focus:shadow-none",
                 }
               }}
