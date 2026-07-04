@@ -12,23 +12,21 @@ export default async function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 relative overflow-hidden selection:bg-indigo-500/30">
-      {/* Background Grid Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-
-      {/* Spotlight Effect */}
-      <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-indigo-500 opacity-20 blur-[100px]"></div>
+    <main className="min-h-screen bg-[#F6F8FC] relative overflow-hidden">
+      {/* Subtle background decoration */}
+      <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[400px] w-[400px] rounded-full bg-[#7C3AED] opacity-5 blur-[120px]"></div>
+      <div className="absolute right-0 bottom-0 -z-10 h-[300px] w-[300px] rounded-full bg-[#2563EB] opacity-5 blur-[100px]"></div>
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 max-w-7xl mx-auto w-full backdrop-blur-sm bg-slate-950/50 border-b border-slate-800/50">
-        <div className="flex items-center space-x-2 font-bold text-xl tracking-tight text-white">
-          <div className="bg-indigo-600 p-1.5 rounded-lg shadow-lg shadow-indigo-500/20">
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 max-w-7xl mx-auto w-full bg-white/80 backdrop-blur-md border-b border-[#E2E8F0]">
+        <div className="flex items-center space-x-2 font-bold text-xl tracking-tight text-[#111827]">
+          <div className="bg-gradient-to-r from-[#8B5CF6] to-[#2563EB] p-1.5 rounded-lg shadow-sm">
             <Zap className="w-5 h-5 text-white fill-white" />
           </div>
           <span>Fluent-Hero</span>
         </div>
         <SignInButton mode="modal" forceRedirectUrl="/learn">
-          <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-white/5 transition-colors duration-200">
+          <Button variant="ghost" className="text-[#475569] hover:text-[#111827] hover:bg-[#F1F5F9] transition-colors duration-200">
             Zaloguj się
           </Button>
         </SignInButton>
@@ -37,25 +35,25 @@ export default async function Home() {
       {/* Hero Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-4 max-w-5xl mx-auto pt-20 animate-fade-in-up">
         {/* Headline */}
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white mb-8 drop-shadow-2xl">
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-[#111827] mb-6">
           Opanuj dowolny język. Szybko.
         </h1>
 
         {/* Subtext */}
-        <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed tracking-wide">
+        <p className="text-base md:text-lg text-[#475569] max-w-2xl mx-auto mb-10 leading-relaxed">
           Kompleksowa platforma do nauki. Śledź postępy, rywalizuj w rankingach i realizuj codzienne cele w jednym miejscu.
         </p>
 
         {/* CTA */}
         <SignInButton mode="modal" forceRedirectUrl="/learn">
-          <Button size="lg" className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-8 h-14 text-lg rounded-full shadow-[0_0_40px_-10px_rgba(79,70,229,0.5)] transition-all duration-300 hover:shadow-[0_0_60px_-15px_rgba(79,70,229,0.6)] hover:scale-105 border border-indigo-500/20">
+          <Button size="lg" className="bg-gradient-to-r from-[#8B5CF6] to-[#2563EB] text-white font-semibold px-8 h-14 text-lg rounded-full shadow-sm transition-all duration-300 hover:opacity-90 hover:scale-105">
             Rozpocznij naukę
           </Button>
         </SignInButton>
       </div>
 
       {/* Footer */}
-      <footer className="absolute bottom-6 w-full text-center text-slate-600 text-sm z-10">
+      <footer className="absolute bottom-6 w-full text-center text-[#94A3B8] text-sm z-10">
         &copy; {new Date().getFullYear()} Fluent-Hero. Wszelkie prawa zastrzeżone.
       </footer>
     </main>

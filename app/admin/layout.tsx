@@ -5,15 +5,14 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // To wywołanie sprawdza uprawnienia przed wyrenderowaniem czegokolwiek
   await requireAdmin();
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
-      <header className="bg-slate-900 text-white p-4 shadow-md">
+    <div className="flex flex-col min-h-screen bg-[#F6F8FC]">
+      <header className="bg-gradient-to-r from-[#8B5CF6] to-[#2563EB] text-white p-4 shadow-md">
         <div className="container mx-auto flex justify-between items-center">
           <h1 className="text-xl font-bold">Fluent-Hero Admin</h1>
-          <span className="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300">
+          <span className="badge badge-muted text-xs">
             Tryb Administratora
           </span>
         </div>

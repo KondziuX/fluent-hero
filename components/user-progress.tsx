@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { courses } from "@/db/schema";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Heart, Zap } from "lucide-react"; // <--- Import ikon kodu
+import { Heart, Zap } from "lucide-react";
 
 type Props = {
   activeCourse: typeof courses.$inferSelect;
@@ -26,7 +26,6 @@ export const UserProgress = ({
   const [timeLeft, setTimeLeft] = useState("");
 
   useEffect(() => {
-    // Jeśli mamy full serc LUB brak daty odnowienia -> nie liczymy
     if (hearts >= 5 || !lastHeartRefill) {
       setTimeLeft("");
       return;
@@ -41,7 +40,7 @@ export const UserProgress = ({
       if (distance < 0) {
         setTimeLeft("00:00");
         clearInterval(interval);
-        router.refresh(); // Odśwież stronę, gdy czas minie
+        router.refresh();
         return;
       }
 
@@ -55,35 +54,32 @@ export const UserProgress = ({
   }, [hearts, lastHeartRefill, router]);
 
   return (
-    <div className="flex items-center justify-between gap-x-2 w-full">
+    <div className="flex items-center justify-between gap-x-2 w-full bg-white rounded-2xl border border-[#E2E8F0] shadow-[0_8px_24px_rgba(15,23,42,0.08)] p-3">
       <Link href="/courses">
-        <Button variant="ghost">
-          {/* Używamy standardowego obrazka flagi lub emotki */}
+        <Button variant="ghost" className="h-[48px] min-h-[48px]">
           <span className="mr-2 text-xl">🇬🇧</span> 
-          {activeCourse.title}
+          <span className="text-[#111827] font-bold">{activeCourse.title}</span>
         </Button>
       </Link>
 
       <Link href="/shop">
-        <Button variant="ghost" className="text-orange-500">
-          {/* Ikona Pioruna z Lucide */}
-          <Zap className="h-5 w-5 mr-2 fill-current" />
-          {points}
+        <Button variant="ghost" className="h-[48px] min-h-[48px] text-[#F59E0B]">
+          <Zap className="h-5 w-5 mr-1 fill-current text-[#F59E0B]" />
+          <span className="font-bold">{points}</span>
         </Button>
       </Link>
 
       <Link href="/shop">
         <Button 
           variant="ghost" 
-          className="text-rose-500 group relative"
+          className="h-[48px] min-h-[48px] text-[#E11D48] group relative"
         >
-          {/* Ikona Serca z Lucide - skaluje się idealnie */}
-          <Heart className="h-5 w-5 mr-2 fill-current" />
+          <Heart className="h-5 w-5 mr-1 fill-current text-[#E11D48]" />
           
           {hasActiveSubscription ? "∞" : hearts}
 
           {!hasActiveSubscription && hearts < 5 && timeLeft && (
-            <div className="absolute top-12 right-0 bg-slate-800 text-white text-xs rounded-md py-2 px-3 z-50 hidden group-hover:flex whitespace-nowrap shadow-lg border border-slate-700">
+            <div className="absolute top-12 right-0 bg-white text-[#111827] text-xs rounded-xl py-2 px-3 z-50 hidden group-hover:flex whitespace-nowrap shadow-[0_8px_24px_rgba(15,23,42,0.12)] border border-[#E2E8F0]">
                +1 ❤️ za: <span className="font-mono ml-1">{timeLeft}</span>
             </div>
           )}

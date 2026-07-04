@@ -4,7 +4,7 @@ import { refillHearts } from "@/actions/user-progress";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useTransition } from "react";
-import { toast } from "sonner"; // Używamy powiadomień
+import { toast } from "sonner";
 
 type Props = {
   hearts: number;
@@ -33,12 +33,11 @@ export const Items = ({
 
   return (
     <ul className="w-full">
-      <div className="flex items-center w-full p-4 gap-x-4 border-t-2 border-slate-200 dark:border-slate-700">
-        {/* Ikonka serca - jeśli nie masz pliku heart.svg, użyj emoji ❤️ */}
-        <div className="text-4xl">❤️</div>
+      <div className="flex items-center w-full p-4 gap-x-4 border-t border-[#E2E8F0] first:border-t-0">
+        <div className="text-4xl shrink-0">❤️</div>
         
-        <div className="flex-1">
-          <p className="text-neutral-700 dark:text-neutral-300 text-base lg:text-xl font-bold">
+        <div className="flex-1 min-w-0">
+          <p className="text-[#111827] text-base font-bold">
             Odnów serca
           </p>
         </div>
@@ -46,12 +45,13 @@ export const Items = ({
         <Button
           onClick={onRefillHearts}
           disabled={pending || hearts === 5 || points < 50}
+          className="shrink-0 rounded-full"
         >
           {hearts === 5 ? (
             "Pełne"
           ) : (
-            <div className="flex items-center">
-              <span className="mr-2">⚡</span> {/* Ikonka pioruna/XP */}
+            <div className="flex items-center gap-1">
+              <span>⚡</span>
               <p>50</p>
             </div>
           )}

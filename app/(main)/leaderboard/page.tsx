@@ -9,7 +9,6 @@ export default async function LeaderboardPage() {
   const userProgressData = getUserProgress();
   const topTenUsersData = getTopTenUsers();
 
-  // Pobieramy dane równolegle (szybciej)
   const [
     userProgress,
     topTenUsers,
@@ -23,7 +22,7 @@ export default async function LeaderboardPage() {
   }
 
   return (
-    <div className="flex flex-row-reverse gap-[48px] px-6">
+    <div className="flex flex-row-reverse gap-[48px] px-0">
       <StickyWrapper>
         <UserProgress
           activeCourse={userProgress.activeCourse}
@@ -35,35 +34,34 @@ export default async function LeaderboardPage() {
       </StickyWrapper>
       
       <FeedWrapper>
-        <div className="w-full flex flex-col items-center">
+        <div className="w-full flex flex-col items-center px-4">
           <Image
-            src="/leaderboard.svg" // Upewnij się, że masz ikonkę (lub użyj innej)
+            src="/leaderboard.svg"
             alt="Leaderboard"
             height={90}
             width={90}
           />
-          <h1 className="text-center font-bold text-neutral-800 dark:text-neutral-200 text-2xl my-6">
+          <h1 className="text-center font-bold text-[#111827] text-2xl my-6">
             Ranking
           </h1>
-          <p className="text-muted-foreground text-center text-lg mb-6">
+          <p className="text-[#64748B] text-center text-base mb-6">
             Zobacz, jak wypadasz na tle innych!
           </p>
           
           {/* Tabela Rankingu */}
-          <div className="w-full rounded-xl bg-white dark:bg-slate-900 p-4 shadow-sm border dark:border-slate-800 space-y-4">
+          <div className="w-full rounded-[24px] bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-[#E2E8F0] space-y-4">
              {topTenUsers.map((user, index) => (
                 <div 
                   key={user.userId}
-                  className="flex items-center w-full p-2 px-4 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                  className="flex items-center w-full p-2 px-4 rounded-xl hover:bg-[#F8FAFC] transition"
                 >
                   {/* Pozycja w rankingu */}
-                  <p className="font-bold text-lime-700 dark:text-lime-400 mr-4 text-xl">
+                  <p className="font-bold text-[#7C3AED] mr-4 text-xl min-w-[28px]">
                     {index + 1}
                   </p>
                   
                   {/* Awatar Użytkownika */}
-                  <div className="ml-2 mr-6 h-12 w-12 rounded-full overflow-hidden border-2 border-slate-200 dark:border-slate-700">
-                     {/* Używamy tagu <img> zamiast <Image>, aby uniknąć problemów z domenami Clerk w next.config */}
+                  <div className="ml-2 mr-4 h-12 w-12 rounded-full overflow-hidden border-2 border-[#E2E8F0] shrink-0">
                      <img
                         src={user.userImage}
                         alt={user.userName}
@@ -72,12 +70,12 @@ export default async function LeaderboardPage() {
                   </div>
 
                   {/* Imię */}
-                  <p className="font-bold text-neutral-800 dark:text-neutral-200 flex-1 text-lg">
+                  <p className="font-bold text-[#111827] flex-1 text-base truncate">
                      {user.userName}
                   </p>
                   
                   {/* Punkty XP */}
-                  <p className="text-muted-foreground font-bold">
+                  <p className="text-[#64748B] font-bold text-sm shrink-0">
                      {user.xp} XP
                   </p>
                 </div>

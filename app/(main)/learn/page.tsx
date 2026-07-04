@@ -19,31 +19,31 @@ export default async function LearnPage() {
   const englishCourse = courses.find(c => c.slug === 'angielski-pl-en');
 
   // --- KONFIGURACJA GEOMETRII ---
-  const HORIZONTAL_OFFSET = 70; // Rozrzut na boki (px)
-  const LESSON_HEIGHT = 64;     // Wysokość przycisku (h-16 = 64px)
-  const GAP_HEIGHT = 100;       // Odstęp między kafelkami w pionie
-  // Całkowity skok w pionie między środkami kafelków
+  const HORIZONTAL_OFFSET = 70;
+  const LESSON_HEIGHT = 64;
+  const GAP_HEIGHT = 100;
   const TOTAL_DY = GAP_HEIGHT + LESSON_HEIGHT;
 
   if (!userProgress || !userProgress.activeCourse) {
     if (!englishCourse) {
-       return <div className="p-4">Błąd: Brak kursów w bazie. Uruchom "npm run db:seed"</div>;
+       return <div className="p-4 text-[#475569]">Błąd: Brak kursów w bazie. Uruchom "npm run db:seed"</div>;
     }
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-6">
-        <h1 className="text-3xl font-bold">Witaj w Fluent-Hero!</h1>
+      <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-4">
+        <h1 className="h1-mobile text-center">Witaj w Fluent-Hero!</h1>
+        <p className="text-[#475569] text-center">Rozpocznij swoją przygodę z nauką angielskiego.</p>
         <form action={async () => {
           'use server';
           await upsertUserProgress(englishCourse.id);
         }}>
-          <Button size="lg" className="w-full">Rozpocznij kurs</Button>
+          <Button size="lg" className="w-full rounded-full">Rozpocznij kurs</Button>
         </form>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-row-reverse gap-[48px] px-6">
+    <div className="flex flex-row-reverse gap-[48px] px-0">
       <StickyWrapper>
         <UserProgress
           activeCourse={userProgress.activeCourse}
@@ -65,23 +65,19 @@ export default async function LearnPage() {
                 const isLockedByHearts = !isCompleted && userProgress.hearts === 0;
                 
                 // --- LOGIKA BLOKOWANIA LEKCJI ---
-                // Lekcja jest zablokowana jeśli poprzednia lekcja (non-intro) nie jest zaliczona w >= 80%
                 let isLockedByPrevious = false;
                 if (index > 0) {
-                  // Find the previous non-intro lesson
                   for (let i = index - 1; i >= 0; i--) {
                     const prevLesson = unit.lessons[i];
                     const prevIsIntro = (prevLesson as any).type === "intro";
                     if (!prevIsIntro) {
-                      // Previous real lesson found - check if it's completed
                       isLockedByPrevious = !prevLesson.isCompleted;
                       break;
                     }
                   }
                 }
 
-                // --- NUMERACJA LEKCJI (pomijając intro) ---
-                // Liczymy tylko non-intro lekcje do wyświetlenia numeru
+                // --- NUMERACJA LEKCJI ---
                 let lessonNumber = 0;
                 for (let i = 0; i <= index; i++) {
                   if ((unit.lessons[i] as any).type !== "intro") {
@@ -89,19 +85,15 @@ export default async function LearnPage() {
                   }
                 }
 
-                // --- LOGIKA POZYCJONOWANIA (Twoje wytyczne) ---
+                // --- LOGIKA POZYCJONOWANIA ---
                 const getOffset = (idx: number) => {
                     const isFirst = idx === 0;
                     const isLast = idx === unit.lessons.length - 1;
 
-                    // 1. Pierwsza i ostatnia lekcja -> ZAWSZE ŚRODEK
                     if (isFirst || isLast) {
                         return 0;
                     }
 
-                    // 2. Reszta naprzemiennie:
-                    // Indeks 1 (Lekcja 2) -> nieparzysty -> LEWO (-OFFSET)
-                    // Indeks 2 (Lekcja 3) -> parzysty    -> PRAWO (+OFFSET)
                     const isOdd = idx % 2 !== 0;
                     return isOdd ? -HORIZONTAL_OFFSET : HORIZONTAL_OFFSET;
                 };
@@ -109,7 +101,6 @@ export default async function LearnPage() {
                 const currentOffset = getOffset(index);
                 const nextOffset = getOffset(index + 1);
                 
-                // Delta X do następnego kafelka (dla rysowania linii)
                 const deltaX = nextOffset - currentOffset;
                 const isLast = index === unit.lessons.length - 1;
 
@@ -133,8 +124,8 @@ export default async function LearnPage() {
                         ) : isIntroLesson ? (
                         <Link href={`/intro/${lesson.id}`}>
                             <Button
-                            variant="secondary"
-                            className="h-16 w-16 rounded-full border-b-4 active:border-b-0 text-xl bg-violet-100 hover:bg-violet-200 border-violet-300 text-violet-700"
+                            variant="outline"
+                            className="h-16 w-16 rounded-full text-xl bg-[#F1F5F9] hover:bg-[#E2E8F0] border-[#E2E8F0] text-[#7C3AED]"
                             >
                             📋
                             </Button>
@@ -142,27 +133,27 @@ export default async function LearnPage() {
                         ) : (
                         <Link href={`/lesson/${lesson.id}`}>
                             <Button
-                            variant={lesson.isCompleted ? "completed" : "secondary"}
-                            className="h-16 w-16 rounded-full border-b-4 active:border-b-0 text-xl"
+                            variant={lesson.isCompleted ? "completed" : "outline"}
+                            className="h-16 w-16 rounded-full text-xl"
                             >
                             {lesson.isCompleted ? "✓" : lessonNumber}
                             </Button>
                         </Link>
                         )}
                         
-                        {/* Dymek z tytułem (tooltip) - zawsze pokazuje tytuł lekcji */}
+                        {/* Dymek z tytułem (tooltip) */}
                         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-max text-center z-20 transition-opacity opacity-100">
-                            <div className="text-sm font-bold text-neutral-700 dark:text-neutral-200 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 px-3 py-1 rounded-xl shadow-sm">
+                            <div className="text-sm font-bold text-[#111827] bg-white border border-[#E2E8F0] px-3 py-1.5 rounded-xl shadow-[0_4px_12px_rgba(15,23,42,0.08)]">
                                 {lesson.title}
                                 {isLockedByHearts && (
-                                  <div className="text-xs text-rose-500 font-normal mt-0.5">Brak serc</div>
+                                  <div className="text-xs text-[#E11D48] font-normal mt-0.5">Brak serc</div>
                                 )}
                                 {lesson.isCompleted && (lesson as any).percentage !== undefined && (
-                                  <span className="block text-xs text-green-600 font-normal mt-0.5">
+                                  <span className="block text-xs text-[#16A34A] font-normal mt-0.5">
                                     {(lesson as any).percentage}% opanowane
                                   </span>
                                 )}
-                                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white dark:bg-slate-900 border-t-2 border-l-2 border-slate-100 dark:border-slate-800 rotate-45" />
+                                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-t border-l border-[#E2E8F0] rotate-45" />
                             </div>
                         </div>
                     </div>
@@ -170,7 +161,6 @@ export default async function LearnPage() {
                     {/* --- LINIA (SVG) --- */}
                     {!isLast && (
                       <div
-                        // Fix SVG: width 1px + overflow-visible + centrowanie absolutne
                         className="absolute top-8 left-1/2 -translate-x-1/2 pointer-events-none -z-10"
                         style={{
                             width: '1px',
@@ -182,8 +172,6 @@ export default async function LearnPage() {
                             width="100%"
                             height="100%"
                          >
-                            {/* Rysujemy od (0,0) czyli środka obecnego kafelka */}
-                            {/* do (deltaX, TOTAL_DY) czyli środka następnego kafelka */}
                             <path
                               d={`
                                 M 0 0
@@ -195,7 +183,7 @@ export default async function LearnPage() {
                               fill="none"
                               strokeDasharray="10 12"
                               strokeLinecap="round"
-                              className="opacity-50 stroke-slate-300 dark:stroke-slate-700"
+                              className="opacity-40 stroke-[#CBD5E1]"
                             />
                          </svg>
                       </div>
