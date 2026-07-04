@@ -4,8 +4,12 @@ import { StickyWrapper } from '@/components/sticky-wrapper';
 import { UserProgress } from '@/components/user-progress';
 import { UnitBanner } from '@/components/unit-banner';
 import { Button } from '@/components/ui/button';
+import { LockedLessonButton } from '@/components/locked-lesson-button';
 import { getUnits, getUserProgress, getCourses } from '@/db/queries';
 import Link from 'next/link';
+
+// Próg zaliczenia lekcji: 80%
+const LESSON_COMPLETION_THRESHOLD = 80;
 
 export default async function LearnPage() {
   const userProgress = await getUserProgress();
@@ -60,6 +64,31 @@ export default async function LearnPage() {
                 const isCompleted = lesson.isCompleted;
                 const isLockedByHearts = !isCompleted && userProgress.hearts === 0;
                 
+                // --- LOGIKA BLOKOWANIA LEKCJI ---
+                // Lekcja jest zablokowana jeśli poprzednia lekcja (non-intro) nie jest zaliczona w >= 80%
+                let isLockedByPrevious = false;
+                if (index > 0) {
+                  // Find the previous non-intro lesson
+                  for (let i = index - 1; i >= 0; i--) {
+                    const prevLesson = unit.lessons[i];
+                    const prevIsIntro = (prevLesson as any).type === "intro";
+                    if (!prevIsIntro) {
+                      // Previous real lesson found - check if it's completed
+                      isLockedByPrevious = !prevLesson.isCompleted;
+                      break;
+                    }
+                  }
+                }
+
+                // --- NUMERACJA LEKCJI (pomijając intro) ---
+                // Liczymy tylko non-intro lekcje do wyświetlenia numeru
+                let lessonNumber = 0;
+                for (let i = 0; i <= index; i++) {
+                  if ((unit.lessons[i] as any).type !== "intro") {
+                    lessonNumber++;
+                  }
+                }
+
                 // --- LOGIKA POZYCJONOWANIA (Twoje wytyczne) ---
                 const getOffset = (idx: number) => {
                     const isFirst = idx === 0;
@@ -73,7 +102,7 @@ export default async function LearnPage() {
                     // 2. Reszta naprzemiennie:
                     // Indeks 1 (Lekcja 2) -> nieparzysty -> LEWO (-OFFSET)
                     // Indeks 2 (Lekcja 3) -> parzysty    -> PRAWO (+OFFSET)
-                    const isOdd = idx % 2 !== 0; 
+                    const isOdd = idx % 2 !== 0;
                     return isOdd ? -HORIZONTAL_OFFSET : HORIZONTAL_OFFSET;
                 };
 
@@ -98,13 +127,9 @@ export default async function LearnPage() {
                     {/* --- KAFELEK LEKCJI --- */}
                     <div className="relative z-10">
                         {isLockedByHearts ? (
-                        <Button
-                            variant="locked"
-                            className="h-16 w-16 rounded-full border-b-4 bg-slate-200 border-slate-400 text-slate-500 cursor-not-allowed"
-                            disabled
-                        >
-                            💔
-                        </Button>
+                        <LockedLessonButton type="hearts" />
+                        ) : isLockedByPrevious ? (
+                        <LockedLessonButton type="previous" />
                         ) : isIntroLesson ? (
                         <Link href={`/intro/${lesson.id}`}>
                             <Button
@@ -120,37 +145,39 @@ export default async function LearnPage() {
                             variant={lesson.isCompleted ? "completed" : "secondary"}
                             className="h-16 w-16 rounded-full border-b-4 active:border-b-0 text-xl"
                             >
-                            {lesson.isCompleted ? "✓" : index + 1}
+                            {lesson.isCompleted ? "✓" : lessonNumber}
                             </Button>
                         </Link>
                         )}
                         
-                        {/* Dymek z tytułem (tooltip) */}
+                        {/* Dymek z tytułem (tooltip) - zawsze pokazuje tytuł lekcji */}
                         <div className="absolute top-20 left-1/2 -translate-x-1/2 w-max text-center z-20 transition-opacity opacity-100">
-                            {!isLockedByHearts ? (
-                                <div className="text-sm font-bold text-neutral-700 dark:text-neutral-200 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 px-3 py-1 rounded-xl shadow-sm">
-                                    {lesson.title}
-                                    <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white dark:bg-slate-900 border-t-2 border-l-2 border-slate-100 dark:border-slate-800 rotate-45" />
-                                </div>
-                            ) : (
-                                <div className="text-xs text-rose-500 font-bold bg-white/90 dark:bg-slate-900/90 px-2 py-1 rounded shadow-sm border border-rose-100 dark:border-rose-900">
-                                    Brak serc
-                                </div>
-                            )}
+                            <div className="text-sm font-bold text-neutral-700 dark:text-neutral-200 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 px-3 py-1 rounded-xl shadow-sm">
+                                {lesson.title}
+                                {isLockedByHearts && (
+                                  <div className="text-xs text-rose-500 font-normal mt-0.5">Brak serc</div>
+                                )}
+                                {lesson.isCompleted && (lesson as any).percentage !== undefined && (
+                                  <span className="block text-xs text-green-600 font-normal mt-0.5">
+                                    {(lesson as any).percentage}% opanowane
+                                  </span>
+                                )}
+                                <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white dark:bg-slate-900 border-t-2 border-l-2 border-slate-100 dark:border-slate-800 rotate-45" />
+                            </div>
                         </div>
                     </div>
 
                     {/* --- LINIA (SVG) --- */}
                     {!isLast && (
-                      <div 
+                      <div
                         // Fix SVG: width 1px + overflow-visible + centrowanie absolutne
                         className="absolute top-8 left-1/2 -translate-x-1/2 pointer-events-none -z-10"
-                        style={{ 
-                            width: '1px', 
+                        style={{
+                            width: '1px',
                             height: `${TOTAL_DY}px`,
                         }}
                       >
-                         <svg 
+                         <svg
                             className="overflow-visible"
                             width="100%"
                             height="100%"
@@ -160,8 +187,8 @@ export default async function LearnPage() {
                             <path
                               d={`
                                 M 0 0
-                                C 0 ${TOTAL_DY * 0.5}, 
-                                  ${deltaX} ${TOTAL_DY * 0.5}, 
+                                C 0 ${TOTAL_DY * 0.5},
+                                  ${deltaX} ${TOTAL_DY * 0.5},
                                   ${deltaX} ${TOTAL_DY}
                               `}
                               strokeWidth="10"

@@ -214,3 +214,32 @@ export const challengeProgressRelations = relations(
     }),
   })
 );
+
+// -----------------------------------------------------------------------------
+// 8. LESSON PROGRESS (Postęp lekcji - dla fiszek i dialogów)
+// -----------------------------------------------------------------------------
+export const lessonProgress = pgTable(
+  'lesson_progress',
+  {
+    id: serial('id').primaryKey(),
+    userId: text('user_id').notNull(),
+    lessonId: integer('lesson_id')
+      .references(() => lessons.id, { onDelete: 'cascade' })
+      .notNull(),
+    completed: boolean('completed').notNull().default(false),
+    percentage: integer('percentage').notNull().default(0), // 0-100
+    knownCount: integer('known_count').notNull().default(0),
+    totalCount: integer('total_count').notNull().default(0),
+    lastAttemptAt: timestamp('last_attempt_at').defaultNow(),
+  },
+  (t) => ({
+    userLessonUnique: unique().on(t.userId, t.lessonId),
+  })
+);
+
+export const lessonProgressRelations = relations(lessonProgress, ({ one }) => ({
+  lesson: one(lessons, {
+    fields: [lessonProgress.lessonId],
+    references: [lessons.id],
+  }),
+}));

@@ -97,8 +97,8 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
 
   const handleStartLesson = useCallback(() => {
     // Navigate to lesson 1 (the first real lesson after intro)
-    router.push(`/lesson/${lessonId + 1}`);
-  }, [router, lessonId]);
+    router.push("/lesson/1");
+  }, [router]);
 
   // Keyboard navigation
   useEffect(() => {
