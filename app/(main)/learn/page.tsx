@@ -1,7 +1,5 @@
 import { upsertUserProgress } from '@/actions/user-progress';
 import { FeedWrapper } from '@/components/feed-wrapper';
-import { StickyWrapper } from '@/components/sticky-wrapper';
-import { UserProgress } from '@/components/user-progress';
 import { UnitBanner } from '@/components/unit-banner';
 import { Button } from '@/components/ui/button';
 import { LockedLessonButton } from '@/components/locked-lesson-button';
@@ -44,16 +42,6 @@ export default async function LearnPage() {
 
   return (
     <div className="flex flex-row-reverse gap-[48px] px-0">
-      <StickyWrapper>
-        <UserProgress
-          activeCourse={userProgress.activeCourse}
-          hearts={userProgress.hearts}
-          points={userProgress.xp}
-          hasActiveSubscription={false}
-          lastHeartRefill={userProgress.lastHeartRefill}
-        />
-      </StickyWrapper>
-
       <FeedWrapper>
         {units.map((unit) => (
           <div key={unit.id} className="mb-10">
