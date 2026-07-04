@@ -77,6 +77,7 @@ export const lessons = pgTable(
     order: integer('order').notNull(),
     theoryMarkdown: text('theory_markdown').notNull().default(''), // TEORIA (kluczowe dla Twojego projektu)
     isReview: boolean('is_review').notNull().default(false), // Czy to lekcja powtórkowa?
+    type: text('type').notNull().default('lesson'), // "lesson" | "intro"
   },
   (t) => ({
     unitSlugUnique: unique().on(t.unitId, t.slug),

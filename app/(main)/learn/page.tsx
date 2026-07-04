@@ -84,9 +84,11 @@ export default async function LearnPage() {
                 const deltaX = nextOffset - currentOffset;
                 const isLast = index === unit.lessons.length - 1;
 
+                const isIntroLesson = (lesson as any).type === "intro";
+
                 return (
-                  <div 
-                    key={lesson.id} 
+                  <div
+                    key={lesson.id}
                     className="relative flex flex-col items-center"
                     style={{
                       transform: `translateX(${currentOffset}px)`,
@@ -97,12 +99,21 @@ export default async function LearnPage() {
                     <div className="relative z-10">
                         {isLockedByHearts ? (
                         <Button
-                            variant="locked" 
+                            variant="locked"
                             className="h-16 w-16 rounded-full border-b-4 bg-slate-200 border-slate-400 text-slate-500 cursor-not-allowed"
                             disabled
                         >
-                            💔 
+                            💔
                         </Button>
+                        ) : isIntroLesson ? (
+                        <Link href={`/intro/${lesson.id}`}>
+                            <Button
+                            variant="secondary"
+                            className="h-16 w-16 rounded-full border-b-4 active:border-b-0 text-xl bg-violet-100 hover:bg-violet-200 border-violet-300 text-violet-700"
+                            >
+                            📋
+                            </Button>
+                        </Link>
                         ) : (
                         <Link href={`/lesson/${lesson.id}`}>
                             <Button
