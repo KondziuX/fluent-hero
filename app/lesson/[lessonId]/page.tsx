@@ -2,9 +2,11 @@ import { getLesson, getUserProgress } from "@/db/queries";
 import { redirect } from "next/navigation";
 import { Quiz } from "../quiz";
 import { FlashcardLesson } from "../flashcard-lesson";
+import { DialogLesson } from "../dialog-lesson";
 
-// Lesson 1 (ID = 1) uses the new flashcard mode
-const FLASHCARD_LESSON_IDS = [1];
+// Lessons 1-5 use flashcard mode, lesson 6 uses dialog mode
+const FLASHCARD_LESSON_IDS = [1, 2, 3, 4, 5];
+const DIALOG_LESSON_IDS = [6];
 
 export default async function LessonPage({
   params,
@@ -14,9 +16,14 @@ export default async function LessonPage({
   const { lessonId } = await params;
   const id = Number(lessonId);
 
-  // Lesson 1 uses flashcard mode
+  // Lessons 1-5 use flashcard mode
   if (FLASHCARD_LESSON_IDS.includes(id)) {
     return <FlashcardLesson lessonId={id} />;
+  }
+
+  // Lesson 6 uses dialog mode (boss fight)
+  if (DIALOG_LESSON_IDS.includes(id)) {
+    return <DialogLesson lessonId={id} />;
   }
 
   // Other lessons use the existing quiz mode

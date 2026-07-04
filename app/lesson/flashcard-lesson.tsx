@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Volume2, ArrowLeft } from "lucide-react";
-import { LESSON_1_FLASHCARDS } from "@/data/flashcards";
+import { LESSON_1_FLASHCARDS, LESSON_2_FLASHCARDS, LESSON_3_FLASHCARDS, LESSON_4_FLASHCARDS, LESSON_5_FLASHCARDS } from "@/data/flashcards";
 import type { Flashcard, FlashcardStatus } from "@/data/flashcards";
 import { saveFlashcardProgress } from "@/actions/flashcard-progress";
 import { FlashcardSummary } from "./flashcard-summary";
@@ -14,15 +14,47 @@ interface FlashcardLessonProps {
   lessonId: number;
 }
 
+const FLASHCARD_DATA: Record<number, { cards: typeof LESSON_1_FLASHCARDS; title: string; description: string }> = {
+  1: {
+    cards: LESSON_1_FLASHCARDS,
+    title: "Start rozmowy: najbezpieczniejsze powitania",
+    description: "Opanuj 8 uniwersalnych angielskich powitań na każdą sytuację.",
+  },
+  2: {
+    cards: LESSON_2_FLASHCARDS,
+    title: "Powitania o różnych porach dnia",
+    description: "Naucz się witać po angielsku o różnych porach dnia – od ranka do wieczora.",
+  },
+  3: {
+    cards: LESSON_3_FLASHCARDS,
+    title: "Luźne powitania ze znajomymi",
+    description: "Poznaj nieformalne angielskie powitania używane w codziennych rozmowach ze znajomymi.",
+  },
+  4: {
+    cards: LESSON_4_FLASHCARDS,
+    title: "Jak się masz? jako uprzejmość",
+    description: "Naucz się pytać o samopoczucie po angielsku – od formalnych po codzienne zwroty.",
+  },
+  5: {
+    cards: LESSON_5_FLASHCARDS,
+    title: "Pierwsze spotkanie",
+    description: "Poznaj zwroty przydatne podczas pierwszego spotkania z nową osobą.",
+  },
+};
+
 export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
   const router = useRouter();
-  const flashcards = LESSON_1_FLASHCARDS;
+  const lessonData = FLASHCARD_DATA[lessonId] ?? FLASHCARD_DATA[1];
+  const flashcards = lessonData.cards;
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [results, setResults] = useState<Map<string, FlashcardStatus>>(new Map());
   const [isCompleted, setIsCompleted] = useState(false);
   const [isPending, setIsPending] = useState(false);
+
+  // Use a ref to track if we're in the middle of evaluating (to prevent double-firing)
+  const isEvaluatingRef = useRef(false);
 
   // Session timing
   const [startTime] = useState<Date>(new Date());
@@ -32,20 +64,21 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
   const totalCards = flashcards.length;
   const evaluatedCount = results.size;
 
-  // Reset flip when moving to next card
+  // Reset flip when moving to next card — happens BEFORE the new card renders
+  // because we set isFlipped=false synchronously in handleEvaluate before setCurrentIndex
   useEffect(() => {
     setIsFlipped(false);
   }, [currentIndex]);
 
+  // Toggle flip both ways — unlimited flipping
   const handleFlip = useCallback(() => {
-    if (!isFlipped) {
-      setIsFlipped(true);
-    }
-  }, [isFlipped]);
+    setIsFlipped((prev) => !prev);
+  }, []);
 
   const handleEvaluate = useCallback(
     async (status: FlashcardStatus) => {
-      if (!currentCard) return;
+      if (!currentCard || isEvaluatingRef.current) return;
+      isEvaluatingRef.current = true;
 
       const newResults = new Map(results);
       newResults.set(currentCard.id, status);
@@ -85,10 +118,17 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
           console.error("Failed to save flashcard progress:", error);
         } finally {
           setIsPending(false);
+          isEvaluatingRef.current = false;
         }
       } else {
-        // Move to next card (flip will reset via useEffect)
-        setCurrentIndex((prev) => prev + 1);
+        // Reset flip FIRST, then move to next card
+        // This ensures the next card starts from the front (Polish side)
+        setIsFlipped(false);
+        // Use setTimeout with 0 to ensure the flip reset renders before index change
+        setTimeout(() => {
+          setCurrentIndex((prev) => prev + 1);
+          isEvaluatingRef.current = false;
+        }, 0);
       }
     },
     [currentCard, currentIndex, results, totalCards, lessonId, startTime]
@@ -157,12 +197,12 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
 
           {/* Title */}
           <h1 className="text-2xl font-bold mb-1">
-            Start rozmowy: najbezpieczniejsze powitania
+            {lessonData.title}
           </h1>
 
           {/* Description */}
           <p className="text-white/80 text-sm">
-            Opanuj 8 uniwersalnych angielskich powitań na każdą sytuację.
+            {lessonData.description}
           </p>
         </div>
       </div>
@@ -190,7 +230,10 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
 
       {/* --- FLASHCARD --- */}
       <div className="flex-1 flex flex-col items-center px-6 max-w-lg mx-auto w-full">
+        {/* key={currentCard.id} forces a complete re-mount of the card when index changes,
+            ensuring the new card always starts from the front (Polish side) */}
         <div
+          key={currentCard.id}
           className="flip-card w-full aspect-[3/4] max-h-[420px] cursor-pointer mb-6"
           onClick={handleFlip}
           role="button"
@@ -213,9 +256,14 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
               <div className="text-xs font-bold text-violet-600 uppercase tracking-wider mb-4">
                 Polski
               </div>
-              <p className="text-xl md:text-2xl font-semibold text-slate-800 text-center leading-relaxed">
+              <p className="text-2xl md:text-3xl font-bold text-slate-800 text-center leading-relaxed">
                 {currentCard.front}
               </p>
+              {currentCard.hint && (
+                <p className="text-sm text-slate-500 text-center mt-4 max-w-xs leading-relaxed">
+                  {currentCard.hint}
+                </p>
+              )}
               {!isFlipped && (
                 <p className="text-xs text-slate-400 mt-6">
                   Kliknij kartę, aby zobaczyć tłumaczenie
@@ -225,16 +273,19 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
 
             {/* --- BACK (English) --- */}
             <div className="flip-card-back bg-slate-900 shadow-xl border border-slate-700">
-              {/* Speaker icon - disabled, English side only */}
-              <button
-                className="absolute top-4 right-4 text-white/30 cursor-not-allowed"
-                aria-disabled="true"
-                aria-label="Odtwarzanie audio (niedostępne)"
-                disabled
-                tabIndex={-1}
-              >
-                <Volume2 className="h-6 w-6" />
-              </button>
+              {/* Speaker icon - disabled, English side only.
+                  pointer-events-none ensures clicks pass through to the card flip handler. */}
+              <div className="absolute top-4 right-4 pointer-events-none">
+                <button
+                  className="text-white/30 cursor-not-allowed"
+                  aria-disabled="true"
+                  aria-label="Odtwarzanie audio (niedostępne)"
+                  disabled
+                  tabIndex={-1}
+                >
+                  <Volume2 className="h-6 w-6" />
+                </button>
+              </div>
 
               <div className="text-xs font-bold text-blue-300 uppercase tracking-wider mb-4">
                 Angielski
@@ -248,18 +299,6 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
             </div>
           </div>
         </div>
-
-        {/* --- FLIP BUTTON (visible only when not flipped) --- */}
-        {!isFlipped && (
-          <Button
-            size="lg"
-            variant="outline"
-            className="w-full mb-4 border-2 border-violet-300 text-violet-700 hover:bg-violet-50"
-            onClick={handleFlip}
-          >
-            ODWRÓĆ FISZKĘ
-          </Button>
-        )}
 
         {/* --- EVALUATION BUTTONS (visible only when flipped) --- */}
         {isFlipped && (

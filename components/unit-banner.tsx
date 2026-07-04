@@ -1,6 +1,4 @@
-import Link from "next/link";
-import { Button } from "./ui/button";
-import { NotebookText, MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 
 type Props = {
   title: string;
@@ -20,18 +18,6 @@ export const UnitBanner = ({
           {description}
         </p>
       </div>
-      
-      {/* Linkujemy do dedykowanej strony z teorią (zrobimy ją za chwilę) */}
-      <Link href="/lesson/guidebook">
-        <Button
-          size="lg"
-          variant="secondary"
-          className="hidden xl:flex border-2 border-b-4 active:border-b-2"
-        >
-          <NotebookText className="mr-2" />
-          Teoria
-        </Button>
-      </Link>
     </div>
   );
 };

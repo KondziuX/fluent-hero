@@ -67,6 +67,7 @@ const main = async () => {
           order: lessonData.order,
           isReview: lessonData.isReview,
           theoryMarkdown: lessonData.theoryMarkdown,
+          type: (lessonData as any).type ?? 'lesson',
         })
         .onConflictDoUpdate({
           target: [schema.lessons.unitId, schema.lessons.slug],
@@ -74,12 +75,13 @@ const main = async () => {
             title: lessonData.title,
             isReview: lessonData.isReview,
             theoryMarkdown: lessonData.theoryMarkdown,
+            type: (lessonData as any).type ?? 'lesson',
           },
         })
         .returning();
 
-      // Challenges
-      for (const challengeData of lessonData.challenges) {
+      // Challenges (flashcard lessons have empty challenges array, skip them)
+      for (const challengeData of lessonData.challenges as unknown as any[]) {
         const [challenge] = await db
           .insert(schema.challenges)
           .values({
