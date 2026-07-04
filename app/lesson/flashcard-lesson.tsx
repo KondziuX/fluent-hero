@@ -53,10 +53,8 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isPending, setIsPending] = useState(false);
 
-  // Use a ref to track if we're in the middle of evaluating (to prevent double-firing)
   const isEvaluatingRef = useRef(false);
 
-  // Session timing
   const [startTime] = useState<Date>(new Date());
   const [endTime, setEndTime] = useState<Date | null>(null);
 
@@ -64,13 +62,10 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
   const totalCards = flashcards.length;
   const evaluatedCount = results.size;
 
-  // Reset flip when moving to next card — happens BEFORE the new card renders
-  // because we set isFlipped=false synchronously in handleEvaluate before setCurrentIndex
   useEffect(() => {
     setIsFlipped(false);
   }, [currentIndex]);
 
-  // Toggle flip both ways — unlimited flipping
   const handleFlip = useCallback(() => {
     setIsFlipped((prev) => !prev);
   }, []);
@@ -84,13 +79,11 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
       newResults.set(currentCard.id, status);
       setResults(newResults);
 
-      // If this was the last card
       if (currentIndex >= totalCards - 1) {
         const now = new Date();
         setEndTime(now);
         setIsCompleted(true);
 
-        // Save progress
         const knownCount = Array.from(newResults.values()).filter(
           (s) => s === "known"
         ).length;
@@ -121,10 +114,7 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
           isEvaluatingRef.current = false;
         }
       } else {
-        // Reset flip FIRST, then move to next card
-        // This ensures the next card starts from the front (Polish side)
         setIsFlipped(false);
-        // Use setTimeout with 0 to ensure the flip reset renders before index change
         setTimeout(() => {
           setCurrentIndex((prev) => prev + 1);
           isEvaluatingRef.current = false;
@@ -164,9 +154,9 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
   // --- SAFEGUARD (no card) ---
   if (!currentCard) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold">Brak fiszek</h1>
-        <Button onClick={() => router.push("/learn")} className="mt-4">
+      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+        <h1 className="text-2xl font-bold text-[#111827]">Brak fiszek</h1>
+        <Button onClick={() => router.push("/learn")} className="mt-4 rounded-full">
           Wróć do mapy
         </Button>
       </div>
@@ -176,11 +166,10 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
   const progressPercent = totalCards > 0 ? (evaluatedCount / totalCards) * 100 : 0;
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
+    <div className="flex flex-col min-h-screen bg-[#F6F8FC]">
       {/* --- GRADIENT HEADER --- */}
-      <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 text-white px-6 pt-8 pb-16 rounded-b-[2rem] shadow-lg">
+      <div className="bg-gradient-to-r from-[#8B5CF6] via-[#7C3AED] to-[#2563EB] text-white px-6 pt-8 pb-16 rounded-b-[2rem] shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
         <div className="max-w-lg mx-auto">
-          {/* Back button */}
           <button
             onClick={() => router.push("/learn")}
             className="mb-4 flex items-center gap-1 text-white/80 hover:text-white transition-colors"
@@ -190,17 +179,14 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
             <span className="text-sm">Przerwij sesję</span>
           </button>
 
-          {/* Label */}
           <div className="inline-block bg-white/20 backdrop-blur-sm text-white text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wider">
             Metoda 10 minut dziennie
           </div>
 
-          {/* Title */}
           <h1 className="text-2xl font-bold mb-1">
             {lessonData.title}
           </h1>
 
-          {/* Description */}
           <p className="text-white/80 text-sm">
             {lessonData.description}
           </p>
@@ -209,29 +195,26 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
 
       {/* --- SESSION INFO --- */}
       <div className="max-w-lg mx-auto w-full px-6 -mt-8 mb-6">
-        <div className="bg-white rounded-xl shadow-md p-4 flex items-center justify-between">
+        <div className="bg-white rounded-2xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-[#E2E8F0] p-4 flex items-center justify-between">
           <button
             onClick={() => router.push("/learn")}
-            className="text-sm text-slate-500 hover:text-slate-700 transition-colors"
+            className="text-sm text-[#64748B] hover:text-[#111827] transition-colors"
           >
             Przerwij sesję
           </button>
-          <span className="text-sm font-semibold text-slate-700">
+          <span className="text-sm font-semibold text-[#475569]">
             Karta {evaluatedCount + 1} z {totalCards}
           </span>
-          <div className="w-16" /> {/* Spacer for alignment */}
+          <div className="w-16" />
         </div>
 
-        {/* Progress bar */}
         <div className="mt-3">
-          <Progress value={progressPercent} className="h-2 bg-slate-200" />
+          <Progress value={progressPercent} className="h-2" />
         </div>
       </div>
 
       {/* --- FLASHCARD --- */}
       <div className="flex-1 flex flex-col items-center px-6 max-w-lg mx-auto w-full">
-        {/* key={currentCard.id} forces a complete re-mount of the card when index changes,
-            ensuring the new card always starts from the front (Polish side) */}
         <div
           key={currentCard.id}
           className="flip-card w-full aspect-[3/4] max-h-[420px] cursor-pointer mb-6"
@@ -252,29 +235,27 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
         >
           <div className={`flip-card-inner ${isFlipped ? "flipped" : ""}`}>
             {/* --- FRONT (Polish) --- */}
-            <div className="flip-card-front bg-white shadow-xl border border-slate-100">
-              <div className="text-xs font-bold text-violet-600 uppercase tracking-wider mb-4">
+            <div className="flip-card-front bg-white shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-[#E2E8F0]">
+              <div className="text-xs font-bold text-[#7C3AED] uppercase tracking-wider mb-4">
                 Polski
               </div>
-              <p className="text-2xl md:text-3xl font-bold text-slate-800 text-center leading-relaxed">
+              <p className="text-2xl md:text-3xl font-bold text-[#111827] text-center leading-relaxed">
                 {currentCard.front}
               </p>
               {currentCard.hint && (
-                <p className="text-sm text-slate-500 text-center mt-4 max-w-xs leading-relaxed">
+                <p className="text-sm text-[#64748B] text-center mt-4 max-w-xs leading-relaxed">
                   {currentCard.hint}
                 </p>
               )}
               {!isFlipped && (
-                <p className="text-xs text-slate-400 mt-6">
+                <p className="text-xs text-[#94A3B8] mt-6">
                   Kliknij kartę, aby zobaczyć tłumaczenie
                 </p>
               )}
             </div>
 
             {/* --- BACK (English) --- */}
-            <div className="flip-card-back bg-slate-900 shadow-xl border border-slate-700">
-              {/* Speaker icon - disabled, English side only.
-                  pointer-events-none ensures clicks pass through to the card flip handler. */}
+            <div className="flip-card-back bg-gradient-to-br from-[#1E293B] to-[#0F172A] shadow-xl border border-[#334155]">
               <div className="absolute top-4 right-4 pointer-events-none">
                 <button
                   className="text-white/30 cursor-not-allowed"
@@ -287,26 +268,26 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
                 </button>
               </div>
 
-              <div className="text-xs font-bold text-blue-300 uppercase tracking-wider mb-4">
+              <div className="text-xs font-bold text-[#93C5FD] uppercase tracking-wider mb-4">
                 Angielski
               </div>
               <p className="text-2xl md:text-3xl font-bold text-white text-center leading-relaxed">
                 {currentCard.back}
               </p>
-              <p className="text-xs text-slate-500 mt-6">
+              <p className="text-xs text-[#64748B] mt-6">
                 Kliknij, aby powrócić
               </p>
             </div>
           </div>
         </div>
 
-        {/* --- EVALUATION BUTTONS (visible only when flipped) --- */}
+        {/* --- EVALUATION BUTTONS --- */}
         {isFlipped && (
           <div className="w-full flex flex-col sm:flex-row gap-3 mb-8">
             <Button
               size="lg"
               variant="outline"
-              className="flex-1 border-2 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 font-semibold py-6"
+              className="flex-1 border-2 border-[#FECACA] text-[#E11D48] hover:bg-[#FEF2F2] hover:text-[#BE123C] font-semibold py-6 rounded-full"
               onClick={() => handleEvaluate("hard")}
               aria-label="Oceń jako trudne"
             >
@@ -315,7 +296,7 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
             <Button
               size="lg"
               variant="outline"
-              className="flex-1 border-2 border-amber-300 text-amber-600 hover:bg-amber-50 hover:text-amber-700 font-semibold py-6"
+              className="flex-1 border-2 border-[#FDE68A] text-[#D97706] hover:bg-[#FFFBEB] hover:text-[#B45309] font-semibold py-6 rounded-full"
               onClick={() => handleEvaluate("learning")}
               aria-label="Oceń jako do nauki"
             >
@@ -323,7 +304,7 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
             </Button>
             <Button
               size="lg"
-              className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-6"
+              className="flex-1 bg-gradient-to-r from-[#16A34A] to-[#15803D] hover:opacity-90 text-white font-semibold py-6 rounded-full"
               onClick={() => handleEvaluate("known")}
               aria-label="Oceń jako opanowane"
             >
@@ -332,7 +313,6 @@ export const FlashcardLesson = ({ lessonId }: FlashcardLessonProps) => {
           </div>
         )}
 
-        {/* Spacer for bottom area */}
         <div className="h-8" />
       </div>
     </div>

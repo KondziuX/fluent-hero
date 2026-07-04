@@ -15,10 +15,6 @@ interface DialogLessonProps {
   lessonId: number;
 }
 
-/**
- * Normalizes a string for comparison: lowercases, removes punctuation,
- * normalizes apostrophes (both ’ and ' → '), and collapses multiple spaces.
- */
 function normalizeAnswer(text: string): string {
   return text
     .toLowerCase()
@@ -28,9 +24,6 @@ function normalizeAnswer(text: string): string {
     .trim();
 }
 
-/**
- * Checks if the user's answer matches any of the accepted answers.
- */
 function isAnswerCorrect(userAnswer: string, acceptedAnswers: string[]): boolean {
   const normalizedUser = normalizeAnswer(userAnswer);
   return acceptedAnswers.some((accepted) => normalizeAnswer(accepted) === normalizedUser);
@@ -40,43 +33,28 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
   const router = useRouter();
   const dialogs = LESSON_6_DIALOGS;
 
-  // Current dialog index
   const [dialogIndex, setDialogIndex] = useState(0);
-  // Current turn index within the current dialog
   const [turnIndex, setTurnIndex] = useState(0);
-  // All conversation bubbles so far (for the current dialog only)
   const [bubbles, setBubbles] = useState<{ speaker: "system" | "user"; text: string }[]>([]);
-  // Input state
   const [inputValue, setInputValue] = useState("");
-  // Feedback state: null = no feedback, "correct" = correct, "wrong" = wrong
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
-  // Hint state
   const [showHint, setShowHint] = useState(false);
-  // Whether hint was used for the current user turn
   const [hintUsed, setHintUsed] = useState(false);
-  // Completion state
   const [isCompleted, setIsCompleted] = useState(false);
   const [isPending, setIsPending] = useState(false);
 
-  // Stats tracking
   const [completedDialogs, setCompletedDialogs] = useState(0);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [hintsUsed, setHintsUsed] = useState(0);
   const [skippedCount, setSkippedCount] = useState(0);
   const [xpEarned, setXpEarned] = useState(0);
 
-  // Session timing
   const [startTime] = useState<Date>(new Date());
   const [endTime, setEndTime] = useState<Date | null>(null);
 
-  // Ref for auto-scrolling to bottom
   const chatEndRef = useRef<HTMLDivElement>(null);
-  // Ref to prevent double evaluation
   const isEvaluatingRef = useRef(false);
-  // Ref to track if we're currently processing a system turn auto-advance
   const isProcessingSystemRef = useRef(false);
-  // Ref to track if the initial mount system bubble has been added
-  const initialBubbleAddedRef = useRef(false);
 
   const currentDialog: Dialog | undefined = dialogs[dialogIndex];
   const currentTurn: DialogTurn | undefined =
@@ -84,53 +62,42 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
       ? currentDialog.turns[turnIndex]
       : undefined;
 
-  // Total number of user turns across all dialogs
   const totalUserTurns = dialogs.reduce(
     (sum, d) => sum + d.turns.filter((t) => t.speaker === "user").length,
     0
   );
-  // Count of user turns completed so far (across previous dialogs)
   const completedUserTurns = dialogs
     .slice(0, dialogIndex)
     .reduce((sum, d) => sum + d.turns.filter((t) => t.speaker === "user").length, 0);
 
-  // Auto-scroll to bottom when bubbles change
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [bubbles]);
 
-  // Reset state when moving to a new dialog
   useEffect(() => {
     setShowHint(false);
     setHintUsed(false);
     setFeedback(null);
     setInputValue("");
-    initialBubbleAddedRef.current = false;
     isProcessingSystemRef.current = false;
   }, [dialogIndex]);
 
-  // Process system turns: add bubble and auto-advance
   useEffect(() => {
-    // Guard: no current turn, or not a system turn, or already processing
     if (!currentTurn || currentTurn.speaker !== "system" || !currentTurn.text) return;
     if (isProcessingSystemRef.current) return;
 
     isProcessingSystemRef.current = true;
 
-    // Add the system bubble
     setBubbles((prev) => [...prev, { speaker: "system", text: currentTurn.text! }]);
 
-    // Check if this is the last turn of the dialog
     const isLastTurn = turnIndex >= (currentDialog?.turns.length ?? 0) - 1;
 
     if (isLastTurn) {
-      // Dialog ends on a system turn → move to next dialog or finish
       const timer = setTimeout(() => {
         const newCompletedDialogs = completedDialogs + 1;
         setCompletedDialogs(newCompletedDialogs);
 
         if (dialogIndex >= dialogs.length - 1) {
-          // All dialogs completed
           const now = new Date();
           setEndTime(now);
           setIsCompleted(true);
@@ -146,7 +113,6 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
             durationSeconds: Math.floor((now.getTime() - startTime.getTime()) / 1000),
           }).catch(() => {}).finally(() => setIsPending(false));
         } else {
-          // Move to next dialog
           setDialogIndex((prev) => prev + 1);
           setTurnIndex(0);
           setBubbles([]);
@@ -158,7 +124,6 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
         isProcessingSystemRef.current = false;
       };
     } else {
-      // Not the last turn → advance to next turn
       const timer = setTimeout(() => {
         setTurnIndex((prev) => prev + 1);
         isProcessingSystemRef.current = false;
@@ -187,14 +152,11 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
   const advanceToNextTurn = useCallback(() => {
     const nextTurnIndex = turnIndex + 1;
 
-    // Check if we've reached the end of the dialog
     if (!currentDialog || nextTurnIndex >= currentDialog.turns.length) {
-      // Dialog completed
       const newCompletedDialogs = completedDialogs + 1;
       setCompletedDialogs(newCompletedDialogs);
 
       if (dialogIndex >= dialogs.length - 1) {
-        // All dialogs completed
         const now = new Date();
         setEndTime(now);
         setIsCompleted(true);
@@ -210,13 +172,11 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
           durationSeconds: Math.floor((now.getTime() - startTime.getTime()) / 1000),
         }).catch(() => {}).finally(() => setIsPending(false));
       } else {
-        // Move to next dialog
         setDialogIndex((prev) => prev + 1);
         setTurnIndex(0);
         setBubbles([]);
       }
     } else {
-      // Move to next turn within the same dialog
       setTurnIndex(nextTurnIndex);
     }
   }, [
@@ -245,16 +205,13 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
 
     if (correct) {
       setFeedback("correct");
-      // Add user bubble
       setBubbles((prev) => [...prev, { speaker: "user", text: answer }]);
       setCorrectAnswers((prev) => prev + 1);
 
-      // XP: full XP if no hint was used
       if (!hintUsed) {
         setXpEarned((prev) => prev + 10);
       }
 
-      // Advance to next turn after a brief delay
       setTimeout(() => {
         setFeedback(null);
         setShowHint(false);
@@ -329,9 +286,9 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
   // --- SAFEGUARD ---
   if (!currentDialog) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold">Brak dialogów</h1>
-        <Button onClick={() => router.push("/learn")} className="mt-4">
+      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+        <h1 className="text-2xl font-bold text-[#111827]">Brak dialogów</h1>
+        <Button onClick={() => router.push("/learn")} className="mt-4 rounded-full">
           Wróć do mapy
         </Button>
       </div>
@@ -350,9 +307,9 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
   const isUserTurn = currentTurn?.speaker === "user";
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
+    <div className="flex flex-col min-h-screen bg-[#F6F8FC]">
       {/* --- GRADIENT HEADER --- */}
-      <div className="bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 text-white px-6 pt-8 pb-16 rounded-b-[2rem] shadow-lg">
+      <div className="bg-gradient-to-r from-[#8B5CF6] via-[#7C3AED] to-[#2563EB] text-white px-6 pt-8 pb-16 rounded-b-[2rem] shadow-[0_8px_24px_rgba(15,23,42,0.08)]">
         <div className="max-w-lg mx-auto">
           <button
             onClick={() => router.push("/learn")}
@@ -377,21 +334,21 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
 
       {/* --- SESSION INFO --- */}
       <div className="max-w-lg mx-auto w-full px-6 -mt-8 mb-6">
-        <div className="bg-white rounded-xl shadow-md p-4 flex items-center justify-between">
+        <div className="bg-white rounded-2xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-[#E2E8F0] p-4 flex items-center justify-between">
           <button
             onClick={() => router.push("/learn")}
-            className="text-sm text-slate-500 hover:text-slate-700 transition-colors"
+            className="text-sm text-[#64748B] hover:text-[#111827] transition-colors"
           >
             Przerwij sesję
           </button>
-          <span className="text-sm font-semibold text-slate-700">
+          <span className="text-sm font-semibold text-[#475569]">
             {currentDialog.title}
           </span>
           <div className="w-16" />
         </div>
 
         <div className="mt-3">
-          <Progress value={progressPercent} className="h-2 bg-slate-200" />
+          <Progress value={progressPercent} className="h-2" />
         </div>
       </div>
 
@@ -406,8 +363,8 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                   bubble.speaker === "system"
-                    ? "bg-white border border-slate-200 text-slate-800 rounded-bl-sm"
-                    : "bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-br-sm"
+                    ? "bg-white border border-[#E2E8F0] text-[#111827] rounded-bl-sm"
+                    : "bg-gradient-to-r from-[#8B5CF6] to-[#2563EB] text-white rounded-br-sm"
                 }`}
               >
                 <p className="text-sm leading-relaxed">{bubble.text}</p>
@@ -415,10 +372,9 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
             </div>
           ))}
 
-          {/* Feedback message */}
           {feedback === "wrong" && (
             <div className="flex justify-center">
-              <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-2 flex items-center gap-2 text-sm">
+              <div className="bg-[#FEF2F2] border border-[#FECACA] text-[#E11D48] rounded-xl px-4 py-2 flex items-center gap-2 text-sm">
                 <XCircle className="h-4 w-4" />
                 <span>Niepoprawna odpowiedź. Spróbuj ponownie.</span>
               </div>
@@ -427,17 +383,16 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
 
           {isFeedbackCorrect && (
             <div className="flex justify-center">
-              <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-2 flex items-center gap-2 text-sm">
+              <div className="bg-[#F0FDF4] border border-[#BBF7D0] text-[#16A34A] rounded-xl px-4 py-2 flex items-center gap-2 text-sm">
                 <CheckCircle2 className="h-4 w-4" />
                 <span>Poprawnie!</span>
               </div>
             </div>
           )}
 
-          {/* Hint */}
           {showHint && currentTurn?.hint && (
             <div className="flex justify-center">
-              <div className="bg-amber-50 border border-amber-200 text-amber-700 rounded-xl px-4 py-2 flex items-center gap-2 text-sm">
+              <div className="bg-[#FFFBEB] border border-[#FDE68A] text-[#D97706] rounded-xl px-4 py-2 flex items-center gap-2 text-sm">
                 <Lightbulb className="h-4 w-4" />
                 <span>{currentTurn.hint}</span>
               </div>
@@ -449,7 +404,7 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
 
         {/* --- INPUT AREA (only for user turns) --- */}
         {isUserTurn && !isFeedbackCorrect && (
-          <div className="bg-white rounded-xl shadow-md p-4 mb-8 space-y-3">
+          <div className="bg-white rounded-2xl shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-[#E2E8F0] p-4 mb-8 space-y-3">
             <div className="flex gap-2">
               <Input
                 value={inputValue}
@@ -462,7 +417,7 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
               <Button
                 onClick={handleSubmit}
                 disabled={!inputValue.trim()}
-                className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700"
+                className="bg-gradient-to-r from-[#8B5CF6] to-[#2563EB] hover:opacity-90"
               >
                 <Send className="h-4 w-4" />
               </Button>
@@ -473,7 +428,7 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
                 size="sm"
                 onClick={handleShowHint}
                 disabled={showHint}
-                className="text-amber-600 border-amber-300 hover:bg-amber-50"
+                className="text-[#D97706] border-[#FDE68A] hover:bg-[#FFFBEB] rounded-full"
               >
                 <Lightbulb className="h-4 w-4 mr-1" />
                 Pokaż podpowiedź
@@ -482,7 +437,7 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
                 variant="outline"
                 size="sm"
                 onClick={handleSkip}
-                className="text-slate-500 border-slate-300 hover:bg-slate-50"
+                className="text-[#64748B] border-[#E2E8F0] hover:bg-[#F8FAFC] rounded-full"
               >
                 <SkipForward className="h-4 w-4 mr-1" />
                 Pomiń
@@ -491,7 +446,6 @@ export const DialogLesson = ({ lessonId }: DialogLessonProps) => {
           </div>
         )}
 
-        {/* Spacer when waiting for system or showing correct feedback */}
         {(!isUserTurn || isFeedbackCorrect) && (
           <div className="h-32" />
         )}

@@ -21,11 +21,11 @@ export const SidebarItem = ({
 
   return (
     <Button
-      variant="ghost"
-      className={`justify-start h-[52px] text-lg mb-1 transition-all duration-200 
+      variant="sidebar"
+      className={`justify-start h-[52px] text-base mb-1 transition-all duration-200 rounded-xl
         ${active 
-          ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-[0_0_20px_-5px_rgba(99,102,241,0.2)]" 
-          : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 border border-transparent"
+          ? "bg-[#7C3AED]/10 text-[#7C3AED] border border-[#7C3AED]/20" 
+          : "text-[#64748B] hover:text-[#111827] hover:bg-[#F1F5F9] border border-transparent"
         }
       `}
       asChild
@@ -34,9 +34,9 @@ export const SidebarItem = ({
         <Image 
             src={iconSrc} 
             alt={label} 
-            className="mr-5 opacity-90" 
-            height={32} 
-            width={32} 
+            className="mr-3 opacity-80" 
+            height={24} 
+            width={24} 
         />
         {label}
       </Link>

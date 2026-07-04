@@ -23,7 +23,7 @@ export const LockedLessonButton = ({ type }: LockedLessonButtonProps) => {
   return (
     <Button
       variant="locked"
-      className="h-16 w-16 rounded-full border-b-4 bg-slate-200 border-slate-400 text-slate-500"
+      className="h-16 w-16 rounded-full bg-[#F1F5F9] border border-[#E2E8F0] text-[#94A3B8]"
       onClick={handleClick}
       type="button"
     >

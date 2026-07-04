@@ -75,7 +75,6 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
       setIsAnimating(true);
       setCurrentSlide(index);
 
-      // Reset animation lock after transition
       setTimeout(() => {
         setIsAnimating(false);
       }, 500);
@@ -96,11 +95,9 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
   }, [currentSlide, goToSlide]);
 
   const handleStartLesson = useCallback(() => {
-    // Navigate to lesson 1 (the first real lesson after intro)
     router.push("/lesson/1");
   }, [router]);
 
-  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === " ") {
@@ -120,7 +117,7 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
   const progressPercent = ((currentSlide + 1) / totalSlides) * 100;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-gradient-to-br from-violet-700 via-purple-600 to-blue-600">
+    <div className="fixed inset-0 z-50 flex flex-col bg-gradient-to-br from-[#8B5CF6] via-[#7C3AED] to-[#2563EB]">
       {/* --- Progress bar --- */}
       <div className="absolute top-0 left-0 right-0 z-20">
         <div className="h-1.5 bg-white/20 w-full">
@@ -131,10 +128,10 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
         </div>
       </div>
 
-      {/* --- Close button (top-right) --- */}
+      {/* --- Close button --- */}
       <button
         onClick={() => router.push("/learn")}
-        className="absolute top-4 right-4 z-20 text-white/60 hover:text-white transition-colors text-sm"
+        className="absolute top-4 right-4 z-20 text-white/60 hover:text-white transition-colors text-sm min-w-[48px] min-h-[48px] flex items-center justify-center"
         aria-label="Zamknij prezentację"
       >
         ✕
@@ -148,15 +145,9 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
       {/* --- Main content area --- */}
       <div className="flex-1 flex items-center justify-center px-6 py-20">
         <div className="w-full max-w-2xl">
-          {/* Animated card */}
           <div
             key={currentSlide}
-            className={`
-              bg-white/10 backdrop-blur-md rounded-3xl p-10 md:p-14
-              shadow-2xl border border-white/10
-              transition-all duration-500 ease-out
-              ${isAnimating ? (direction === "right" ? "animate-slide-in-right" : "animate-slide-in-left") : ""}
-            `}
+            className="bg-white/10 backdrop-blur-md rounded-3xl p-10 md:p-14 shadow-2xl border border-white/10"
             style={{
               animation:
                 isAnimating && direction === "right"
@@ -166,7 +157,6 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
                   : undefined,
             }}
           >
-            {/* Title */}
             <h2
               className="text-3xl md:text-4xl font-bold text-white text-center mb-4 animate-fade-in-up"
               style={{ animationDelay: "0.1s", animationDuration: "0.6s" }}
@@ -174,7 +164,6 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
               {slide.title}
             </h2>
 
-            {/* Subtitle */}
             {slide.subtitle && (
               <p
                 className="text-lg md:text-xl text-white/70 text-center max-w-lg mx-auto animate-fade-in-up"
@@ -184,7 +173,6 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
               </p>
             )}
 
-            {/* Goal */}
             {slide.goal && (
               <div
                 className="flex flex-col items-center gap-2 mt-6 animate-fade-in-up"
@@ -197,7 +185,6 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
               </div>
             )}
 
-            {/* Count */}
             {slide.count && (
               <div
                 className="flex items-center justify-center gap-2 mt-4 animate-fade-in-up"
@@ -208,7 +195,6 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
               </div>
             )}
 
-            {/* Button (last slide) */}
             {slide.button && (
               <div
                 className="flex justify-center mt-8 animate-fade-in-up"
@@ -217,7 +203,7 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
                 <Button
                   size="lg"
                   onClick={handleStartLesson}
-                  className="bg-white text-violet-700 hover:bg-white/90 font-bold text-lg px-10 py-7 rounded-2xl shadow-xl hover:scale-105 transition-all duration-200"
+                  className="bg-white text-[#7C3AED] hover:bg-white/90 font-bold text-lg px-10 py-7 rounded-2xl shadow-xl hover:scale-105 transition-all duration-200"
                 >
                   {slide.button}
                 </Button>
@@ -229,7 +215,6 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
 
       {/* --- Bottom navigation --- */}
       <div className="relative z-20 pb-8">
-        {/* Dots */}
         <div className="flex items-center justify-center gap-2 mb-6">
           {SLIDES.map((_, index) => (
             <button
@@ -238,7 +223,7 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
                 const dir = index > currentSlide ? "right" : "left";
                 goToSlide(index, dir);
               }}
-              className={`transition-all duration-300 rounded-full ${
+              className={`transition-all duration-300 rounded-full min-w-0 min-h-0 ${
                 index === currentSlide
                   ? "w-8 h-2.5 bg-white"
                   : "w-2.5 h-2.5 bg-white/30 hover:bg-white/50"
@@ -248,12 +233,11 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
           ))}
         </div>
 
-        {/* Navigation buttons */}
         <div className="flex items-center justify-between px-6 max-w-md mx-auto">
           <button
             onClick={goPrev}
             disabled={currentSlide === 0}
-            className={`flex items-center gap-1 text-sm font-medium transition-all ${
+            className={`flex items-center gap-1 text-sm font-medium transition-all min-w-[48px] min-h-[48px] ${
               currentSlide === 0
                 ? "text-white/20 cursor-not-allowed"
                 : "text-white/70 hover:text-white"
@@ -267,7 +251,7 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
           {currentSlide < totalSlides - 1 && (
             <button
               onClick={goNext}
-              className="flex items-center gap-1 text-sm font-medium text-white/70 hover:text-white transition-all"
+              className="flex items-center gap-1 text-sm font-medium text-white/70 hover:text-white transition-all min-w-[48px] min-h-[48px]"
               aria-label="Następny slajd"
             >
               <span>Dalej</span>
@@ -281,7 +265,6 @@ export const IntroPresentation = ({ lessonId }: IntroPresentationProps) => {
         </div>
       </div>
 
-      {/* --- Keyframe animations --- */}
       <style jsx>{`
         @keyframes slideInRight {
           from {

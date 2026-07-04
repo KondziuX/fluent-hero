@@ -14,7 +14,7 @@ export default async function ShopPage() {
   }
 
   return (
-    <div className="flex flex-row-reverse gap-[48px] px-6">
+    <div className="flex flex-row-reverse gap-[48px] px-0">
       <StickyWrapper>
         <UserProgress
           activeCourse={userProgress.activeCourse}
@@ -26,21 +26,21 @@ export default async function ShopPage() {
       </StickyWrapper>
       
       <FeedWrapper>
-        <div className="w-full flex flex-col items-center">
+        <div className="w-full flex flex-col items-center px-4">
           <Image
-            src="/shop.svg" // Upewnij się, że masz ten plik lub użyj innego
+            src="/shop.svg"
             alt="Shop"
             height={90}
             width={90}
           />
-          <h1 className="text-center font-bold text-neutral-800 dark:text-neutral-200 text-2xl my-6">
+          <h1 className="text-center font-bold text-[#111827] text-2xl my-6">
             Sklep
           </h1>
-          <p className="text-muted-foreground text-center text-lg mb-6">
+          <p className="text-[#64748B] text-center text-base mb-6">
             Wydawaj punkty na fajne rzeczy!
           </p>
           
-          <div className="bg-white dark:bg-slate-900 p-4 w-full rounded-xl shadow-sm border dark:border-slate-800">
+          <div className="bg-white p-4 w-full rounded-[24px] shadow-[0_8px_24px_rgba(15,23,42,0.08)] border border-[#E2E8F0]">
             <Items
                 hearts={userProgress.hearts}
                 points={userProgress.xp}
